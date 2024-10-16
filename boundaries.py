@@ -1,14 +1,23 @@
 import numpy as np
 import math
-
+import itertools as itr
 
 class WallBoundary:
     def __init__(self, xResolution: int, yResolution: int, invert: bool = False):
         self.xResolution = xResolution
         self.yResolution = yResolution
-        self.invert = invert
+        self.invert = invert # True if boundary, False if not
         self.boundary = np.full((xResolution, yResolution), invert)
-
+        self.boundaryIndex = None
+    
+    def generateIndex(self):
+        self.boundaryIndex = []
+        for i, j in itr.product(range(self.xResolution), range(self.yResolution)):
+            if self.boundary[i, j] != self.invert:
+                self.boundaryIndex.append((i, j))
+            else:
+                pass
+    
     def cylindricalWall(self, cylinderCenter: list, cylinderRadius):
         for xIndex in range(self.xResolution):
             for yIndex in range(self.yResolution):
