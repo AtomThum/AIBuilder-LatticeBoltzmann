@@ -1,14 +1,25 @@
 import numpy as np
 import math
 
+indices = [[1,8,5],[2,5,6],[3,6,7],[4,7,8]]
+import itertools as itr
 
 class WallBoundary:
     def __init__(self, xResolution: int, yResolution: int, invert: bool = False):
         self.xResolution = xResolution
         self.yResolution = yResolution
-        self.invert = invert
+        self.invert = invert # True if boundary, False if not
         self.boundary = np.full((xResolution, yResolution), invert)
-
+        self.boundaryIndex = None
+    
+    def generateIndex(self):
+        self.boundaryIndex = []
+        for i, j in itr.product(range(self.xResolution), range(self.yResolution)):
+            if self.boundary[i, j] != self.invert:
+                self.boundaryIndex.append((i, j))
+            else:
+                pass
+    
     def cylindricalWall(self, cylinderCenter: list, cylinderRadius):
         for xIndex in range(self.xResolution):
             for yIndex in range(self.yResolution):
@@ -30,3 +41,19 @@ class WallBoundary:
                     and (yIndex > minY)
                 ):
                     self.boundary[xIndex, yIndex] = not self.invert
+
+class PressureBoundary:
+    def __init__(self, x: int, y: int, ux, uy, direction: int):
+        self.x = x
+        self.y = y
+        self.ux = ux
+        self.uy = uy
+        self.direction = direction
+        if direction in [3, 4]:
+            reflectIndex = direction - 2
+        else: 
+            reflectIndex = direction + 2
+        self.mainvelocity = ux if direction in [1,3] else uy
+        self.minorvelocity = uy if direction in [1,3] else ux
+        self.setindices = indices[direction - 1]
+        self.getindices = indices[reflectIndex - 1]
