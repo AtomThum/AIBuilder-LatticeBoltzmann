@@ -77,8 +77,8 @@ class PressureBoundary:
         self.getIndices = indices[reflectIndex - 1]
 
 class VelocityBoundary:
-    def __init__(self, x:int, y:int, ux, uy):
+    def __init__(self, x:int, y:int, magnitude: list, direction: list):
         self.x = x
         self.y = y
-        self.ux = ux
-        self.uy = uy
+        self.magnitude = magnitude
+        self.direction = np.array(direction)
