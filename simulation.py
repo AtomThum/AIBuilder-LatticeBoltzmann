@@ -1,6 +1,5 @@
 import numpy as np
 from boundaries import WallBoundary, PressureBoundary, VelocityBoundary
-from generators import WallGenerators
 
 latticeSize = 9
 xResolution = 40
@@ -27,19 +26,44 @@ class Simulation:
         yResolution: int,
         initCondition: np.array,
         wallBoundary: WallBoundary,
-        pressureBoundary: list,
-        velocityBoundary: list,
+        pressureBoundary: list = [],
+        velocityBoundary: list = [],
         relaxationTime: float = 0.809,
+        initialStep: int = 0;
     ):
         self.xResolution = xResolution
         self.yResolution = yResolution
-        self.initialCondition = initCondition.copy()
         self.fluid = initCondition
         self.relaxationTime = relaxationTime
         self.wallBoundary = wallBoundary
         self.pressureBoundaries = pressureBoundary
         self.velocityBoundary = velocityBoundary
+        self.step = initialStep
+        
+        self.fluid[self.wallBoundary.boundary, :] = 0
+        self.initialCondition = initCondition.copy()
+
+        self.density = np.sum(self.fluid, axis = 2)
+        self.momentumX = np.sum(self.fluid * unitX, axis = 2)
+        self.momentumY = np.sum(self.fluid * unitY, axis = 2)
+        self.speedX = self.momentumX / self.density
+        self.speedY = self.momentumY / self.density
+        self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
+        self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
     
+    def updateDensity(self):
+        self.density = np.sum(self.fluid, axis=2)
+    
+    def updateMomentum(self):
+        self.momentumX = np.sum(self.fluid * unitX, axis = 2)
+        self.momentumY = np.sum(self.fluid * unitY, axis = 2)
+    
+    def updateSpeed(self):
+        self.speedX = self.momentumX / self.density
+        self.speedY = self.momentumY / self.density
+        self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
+        self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
+
     def stepFluid(self):
         fluid = self.fluid
         
@@ -71,9 +95,9 @@ class Simulation:
             fluid[:, :, latticeIndex] = np.roll(fluid[:, :, latticeIndex], shiftX, axis=1)
             fluid[:, :, latticeIndex] = np.roll(fluid[:, :, latticeIndex], shiftY, axis=0)
 
-        fluidBoundary = fluid[self.boundary.boundary, :]
+        fluidBoundary = fluid[self.wallBoundary.boundary, :]
         fluidBoundary = fluidBoundary[:, [0, 3, 4, 1, 2, 7, 8, 5, 6]]
-        fluid[self.boundary.boundary, :] = fluidBoundary
+        fluid[self.wallBoundary.boundary, :] = fluidBoundary
 
         for pressureBoundary in self.pressureBoundaries:
             for latticeIndex in range(latticeSize):
@@ -84,4 +108,8 @@ class Simulation:
             fluid[pressureBoundary.x , pressureBoundary.y, pressureBoundary.setIndices[2]] = fluid[pressureBoundary.x , pressureBoundary.y, pressureBoundary.getIndices[2]] + (0.5 * (fluid[pressureBoundary.x , pressureBoundary.y, (4 if pressureBoundary.direction - 1 == 0 else pressureBoundary.direction - 1)] - fluid[pressureBoundary.x , pressureBoundary.y, (1 if pressureBoundary.direction + 1 == 5 else pressureBoundary.direction + 1)])) - (0.5 * densityAtIndex * pressureBoundary.minorVelocity) + (1/6 * densityAtIndex * pressureBoundary.mainVelocity)
 
         self.fluid = fluid
+        self.step += 1
         return fluid
+    
+    def simulateFluid(self, step: int):
+        [self.stepFluid(self) for _ in range(step)]
