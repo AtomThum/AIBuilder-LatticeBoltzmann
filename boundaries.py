@@ -53,15 +53,24 @@ class WallBoundary:
     # Border around the simulation
     # Thickness will be implemented later.
     def borderWall(self, thickness: int = 1):
-        self.boundary[0 : self.xResolution, 0] = not self.invert
-        self.boundary[0 : self.xResolution, self.yResolution - 1] = not self.invert
-        self.boundary[0, 0 : self.yResolution] = not self.invert
-        self.boundary[self.xResolution - 1, 0 : self.yResolution] = not self.invert
+        self.boundary[0 : self.xResolution, -1 + thickness] = not self.invert
+        self.boundary[0 : self.xResolution, self.yResolution - thickness] = (
+            not self.invert
+        )
+        self.boundary[-1 + thickness, 0 : self.yResolution] = not self.invert
+        self.boundary[self.xResolution - thickness, 0 : self.yResolution] = (
+            not self.invert
+        )
         self.updateInvertedBoundary()
+    
+    def dotWall(self, *args: tuple):
+        for position in args:
+            self.boundary[position] = not self.invert
 
 
 class PressureBoundary:
     indices = [[1, 8, 5], [2, 5, 6], [3, 6, 7], [4, 7, 8]]
+
     def __init__(self, x: int, y: int, ux, uy, direction: int):
         self.x = x
         self.y = y

@@ -93,12 +93,12 @@ class Simulation:
                 )
             )
 
-        self.fluid[self.wallBoundary.invertedBoundary, :] -= (
-            self.fluid[self.wallBoundary.invertedBoundary, :]
-            - fluidEquilibrium[self.wallBoundary.invertedBoundary, :]
-            / self.relaxationTime
-        )
-        # self.fluid -= (self.fluid - fluidEquilibrium) / self.relaxationTime
+        # self.fluid[self.wallBoundary.invertedBoundary, :] -= (
+        #     self.fluid[self.wallBoundary.invertedBoundary, :]
+        #     - fluidEquilibrium[self.wallBoundary.invertedBoundary, :]
+        #     / self.relaxationTime
+        # )
+        self.fluid -= (self.fluid - fluidEquilibrium) / self.relaxationTime
 
         for latticeIndex, shiftX, shiftY in zip(
             range(latticeSize), Simulation.unitX, Simulation.unitY
