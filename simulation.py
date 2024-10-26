@@ -5,14 +5,6 @@ from boundaries import WallBoundary, PressureBoundary, VelocityBoundary
 latticeSize = 9
 xResolution = 40
 yResolution = 40
-relaxationTime = 0.809  # Best: 0.809
-# Weights
-unitVect = np.array(
-    [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
-)
-unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
-unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
-weight = np.array([4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36])
 
 
 class Simulation:
@@ -24,6 +16,7 @@ class Simulation:
     weight = np.array(
         [4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36]
     )
+    latticeSize = 9
 
     def __init__(
         self,
@@ -53,8 +46,8 @@ class Simulation:
 
         # Initial calculation from the initial condition. These variables will be updated as time goes on
         self.density = np.sum(self.fluid, axis=2)
-        self.momentumX = np.sum(self.fluid * unitX, axis=2)
-        self.momentumY = np.sum(self.fluid * unitY, axis=2)
+        self.momentumX = np.sum(self.fluid * Simulation.unitX, axis=2)
+        self.momentumY = np.sum(self.fluid * Simulation.unitY, axis=2)
         self.speedX = self.momentumX / self.density
         self.speedY = self.momentumY / self.density
         self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
@@ -70,8 +63,8 @@ class Simulation:
         self.density = np.sum(self.fluid, axis=2)
 
     def updateMomentum(self):
-        self.momentumX = np.sum(self.fluid * unitX, axis=2)
-        self.momentumY = np.sum(self.fluid * unitY, axis=2)
+        self.momentumX = np.sum(self.fluid * Simulation.unitX, axis=2)
+        self.momentumY = np.sum(self.fluid * Simulation.unitY, axis=2)
 
     # If this function is called, you don't have to update density and momentum
     def updateSpeed(self):
@@ -86,7 +79,9 @@ class Simulation:
     def stepFluid(self):
         # Equilizing step
         fluidEquilibrium = np.zeros(self.fluid.shape)
-        for latticeIndex, cx, cy, w in zip(range(latticeSize), unitX, unitY, weight):
+        for latticeIndex, cx, cy, w in zip(
+            range(latticeSize), Simulation.unitX, Simulation.unitY, Simulation.weight
+        ):
             fluidEquilibrium[:, :, latticeIndex] = (
                 self.density
                 * w
@@ -98,10 +93,16 @@ class Simulation:
                 )
             )
 
-        # fluid[boundary.invertedBoundary, :] -= (1 / relaxationTime) * (fluid[boundary.invertedBoundary, :] - fluidEquilibrium[boundary.invertedBoundary, :])
-        self.fluid -= (1 / relaxationTime) * (self.fluid - fluidEquilibrium)
+        self.fluid[self.wallBoundary.invertedBoundary, :] -= (
+            self.fluid[self.wallBoundary.invertedBoundary, :]
+            - fluidEquilibrium[self.wallBoundary.invertedBoundary, :]
+            / self.relaxationTime
+        )
+        # self.fluid -= (self.fluid - fluidEquilibrium) / self.relaxationTime
 
-        for latticeIndex, shiftX, shiftY in zip(range(latticeSize), unitX, unitY):
+        for latticeIndex, shiftX, shiftY in zip(
+            range(latticeSize), Simulation.unitX, Simulation.unitY
+        ):
             self.fluid[:, :, latticeIndex] = np.roll(
                 self.fluid[:, :, latticeIndex], shiftX, axis=1
             )
@@ -200,7 +201,7 @@ class Simulation:
         return self.fluid
 
     def simulateFluid(self, step: int):
-        [self.stepFluid(self) for _ in range(step)]
+        [self.stepFluid() for _ in range(step)]
 
     # Uses mean absolute error to determine whether the fluid is in equilibrium
     def isAtDensityEquilibirum(self, threshold: float):

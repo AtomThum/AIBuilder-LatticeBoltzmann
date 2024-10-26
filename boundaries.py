@@ -2,7 +2,8 @@ import numpy as np
 import math
 import itertools as itr
 
-np.seterr(divide = None, invalid = None)
+np.seterr(divide=None, invalid=None)
+
 
 class WallBoundary:
     def __init__(self, xResolution: int, yResolution: int, invert: bool = False):
@@ -50,6 +51,7 @@ class WallBoundary:
         self.updateInvertedBoundary()
 
     # Border around the simulation
+    # Thickness will be implemented later.
     def borderWall(self, thickness: int = 1):
         self.boundary[0 : self.xResolution, 0] = not self.invert
         self.boundary[0 : self.xResolution, self.yResolution - 1] = not self.invert
@@ -59,6 +61,7 @@ class WallBoundary:
 
 
 class PressureBoundary:
+    indices = [[1, 8, 5], [2, 5, 6], [3, 6, 7], [4, 7, 8]]
     def __init__(self, x: int, y: int, ux, uy, direction: int):
         self.x = x
         self.y = y
@@ -69,12 +72,11 @@ class PressureBoundary:
             reflectIndex = direction - 2
         else:
             reflectIndex = direction + 2
-        
-        indices = [[1, 8, 5], [2, 5, 6], [3, 6, 7], [4, 7, 8]]
+
         self.mainVelocity = ux if direction in [1, 3] else uy
         self.minorVelocity = uy if direction in [1, 3] else ux
-        self.setIndices = indices[direction - 1]
-        self.getIndices = indices[reflectIndex - 1]
+        self.setIndices = PressureBoundary.indices[direction - 1]
+        self.getIndices = PressureBoundary.indices[reflectIndex - 1]
 
 
 class VelocityBoundary:
