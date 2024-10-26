@@ -74,11 +74,11 @@ class WallBoundary:
 class PressureBoundary:
     indices = [[1, 8, 5], [2, 5, 6], [3, 6, 7], [4, 7, 8]]
 
-    def __init__(self, x: int, y: int, ux, uy, direction: int):
-        self.x = x
+    def __init__(self, y: int, x: int, ux, uy, direction: int):
         self.y = y
-        self.ux = ux
+        self.x = x
         self.uy = uy
+        self.ux = ux
         self.direction = direction
         if direction in [3, 4]:
             reflectIndex = direction - 2
