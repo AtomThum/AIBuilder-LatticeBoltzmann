@@ -5,11 +5,13 @@ from scipy.ndimage import convolve
 
 np.seterr(divide=None, invalid=None)
 
-def numerical_inverse(n):
+
+def numericalInverse(n):
     return int(n != 1)
 
+
 class WallBoundary:
-    mineSweeper = [[1,1,1],[1,0,1],[1,1,1]]
+    mineSweeper = [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
     unitVect = np.array(
         [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
     )
@@ -40,23 +42,27 @@ class WallBoundary:
     def generateACPosandDirections(self):
         self.possibleACPos = []
         self.possibleACDirections = []
-        applyall = np.vectorize(numerical_inverse)
+        applyall = np.vectorize(numericalInverse)
         inverted = applyall(self.boundary.astype(int))
-        padded_array = np.pad(inverted, pad_width=1, mode='constant', constant_values=0)
-        edgeSwept = convolve(padded_array, WallBoundary.mineSweeper)[1:-1, 1:-1] 
+        padded_array = np.pad(inverted, pad_width=1, mode="constant", constant_values=0)
+        edgeSwept = convolve(padded_array, WallBoundary.mineSweeper)[1:-1, 1:-1]
         edgesProcessed = np.logical_and(edgeSwept >= 2, edgeSwept <= 5)
 
         for i in self.boundaryIndex:
-            if (edgesProcessed[i[0], i[1]]):
+            if edgesProcessed[i[0], i[1]]:
                 self.possibleACPos.append(i)
                 possibleACDirection = []
                 for index, j in enumerate(WallBoundary.unitVect):
-                    if (i[0] + j[0] >= 0 and i[0] + j[0] < self.yResolution and i[1] + j[1] >= 0 and i[1] + j[1] < self.xResolution):
+                    if (
+                        i[0] + j[0] >= 0
+                        and i[0] + j[0] < self.yResolution
+                        and i[1] + j[1] >= 0
+                        and i[1] + j[1] < self.xResolution
+                    ):
                         isWallThere = self.boundary[i[0] + j[0], i[1] + j[1]]
-                        if (not isWallThere):
+                        if not isWallThere:
                             possibleACDirection.append(index)
                 self.possibleACDirections.append(possibleACDirection)
-
 
     def cylindricalWall(self, cylinderCenter: list, cylinderRadius: float):
         for yIndex, xIndex in itr.product(
@@ -127,5 +133,5 @@ class VelocityBoundary:
     def __init__(self, y: int, x: int, magnitude: tuple, direction: tuple):
         self.y = y
         self.x = x
-        self.magnitude = magnitude # Follows the e conventions
+        self.magnitude = magnitude  # Follows the e conventions
         self.direction = np.array(direction)
