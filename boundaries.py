@@ -13,6 +13,7 @@ class WallBoundary:
         self.boundary = np.full((yResolution, xResolution), invert)
         self.invertedBoundary = np.invert(self.boundary)
         self.boundaryIndex = None
+        self.invertedBoundaryIndex = None
 
     def updateInvertedBoundary(self):
         self.invertedBoundary = np.invert(self.boundary)
@@ -23,7 +24,7 @@ class WallBoundary:
             if self.boundary[i, j] != self.invert:
                 self.boundaryIndex.append((i, j))
             else:
-                pass
+                self.invertedBoundaryIndex.append((i, j))
         self.updateInvertedBoundary()
 
     def cylindricalWall(self, cylinderCenter: list, cylinderRadius: float):
