@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import itertools as itr
+import random
 from scipy.ndimage import convolve
 
 np.seterr(divide=None, invalid=None)
@@ -11,7 +12,8 @@ def numericalInverse(n):
 
 
 class WallBoundary:
-    mineSweeper = [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+    mineSweeper = [[1,1,1],[1,0,1],[1,1,1]]
+    directions = [(1,-1),(1,1),(1,1),(-1,1),(1,-1),(1,1),(-1,1),(-1,-1)]
     unitVect = np.array(
         [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
     )
@@ -27,16 +29,53 @@ class WallBoundary:
         self.possibleACPos = None
         self.possibleACDirections = None
 
+        self.cutPositionsX = []
+        self.cutPositionsY = []
+        self.cutTypes = []
+        self.cutSizesX = []
+        self.cutSizesY = []
+
+        self.possiblePositions = [(int(self.yResolution/3), self.xResolution - 1), (0, int(self.xResolution/3)), (int(self.yResolution/3), 0), (self.yResolution - 1, int(self.xResolution/3)), (0, self.xResolution - 1), (0, 0), (self.yResolution - 1, 0), (self.yResolution - 1, self.xResolution - 1)]
+
+
     def updateInvertedBoundary(self):
         self.invertedBoundary = np.invert(self.boundary)
 
     def generateIndex(self):
+        self.boundaryIndex = []
+        self.invertedBoundaryIndex = []
         for i, j in itr.product(range(self.yResolution), range(self.xResolution)):
             if self.boundary[i, j] != self.invert:
                 self.boundaryIndex.append((i, j))
             else:
                 self.invertedBoundaryIndex.append((i, j))
         self.updateInvertedBoundary()
+
+    def generateRoom(self):
+        for i in random.sample(range(8), k = random.randint(1,8)):
+            wallPos = self.possiblePositions[i]
+            maxSize = int(min(self.yResolution, self.xResolution) * 0.4)
+            minSize = int(min(self.yResolution, self.xResolution) * 0.2)
+            sizeX = random.randint(minSize, maxSize)
+            sizeY = random.randint(minSize, maxSize)
+            if random.random() < 0.5:
+                self.cylindricalWall(wallPos, sizeX)
+                self.cutTypes.append(0)
+                self.cutPositionsX.append(wallPos[1])
+                self.cutPositionsY.append(wallPos[0])
+                self.cutSizesX.append(sizeX)
+                self.cutSizesY.append(sizeX)
+
+            else:
+                endPos = (wallPos[0] + (sizeY*WallBoundary.directions[i][0]), wallPos[1] + (sizeX*WallBoundary.directions[i][1]))
+                self.filledStraightRectangularWall(wallPos, endPos)
+                self.cutTypes.append(1)
+                self.cutPositionsX.append(wallPos[1])
+                self.cutPositionsY.append(wallPos[0])
+                self.cutSizesX.append(sizeX)
+                self.cutSizesY.append(sizeY)
+        
+        return {"SizeX": self.xResolution, "SizeY": self.yResolution, "NumberOfCuts":len(self.cutTypes), "TypesOfCuts":self.cutTypes, "CutPositionsX":self.cutPositionsX, "CutPositionsY":self.cutPositionsY, "CutSizesX":self.cutSizesX, "CutSizesY":self.cutSizesY}
 
     def generateACPosandDirections(self):
         self.possibleACPos = []
@@ -106,6 +145,7 @@ class WallBoundary:
     def dotWalls(self, *args: tuple):
         for position in args:
             self.boundary[position[0], position[1]] = not self.invert
+        
 
 
 class PressureBoundary:

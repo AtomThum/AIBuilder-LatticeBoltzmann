@@ -86,12 +86,15 @@ class Simulation:
         for y, x in self.wallBoundary.boundaryIndex:
             for latticeIndex in range(Simulation.latticeSize):
                 if self.fluid[y, x, latticeIndex] != 0:
-                    self.fluid[
-                        y - Simulation.unitY[latticeIndex],
-                        x - Simulation.unitX[latticeIndex],
-                        Simulation.reflectIndices[latticeIndex],
-                    ] = self.fluid[y, x, latticeIndex]
-                    self.fluid[y, x, latticeIndex] = 0
+                    bounceIndexY = y - Simulation.unitY[latticeIndex]
+                    bounceIndexX = x - Simulation.unitX[latticeIndex]
+                    if (bounceIndexY >= 0 and bounceIndexY < self.yResolution) and (bounceIndexX >= 0 and bounceIndexX < self.xResolution):
+                        self.fluid[
+                            bounceIndexY,
+                            bounceIndexX,
+                            Simulation.reflectIndices[latticeIndex],
+                        ] = self.fluid[y, x, latticeIndex]
+                        self.fluid[y, x, latticeIndex] = 0
         self.updateSpeed()
 
     def collideFluid(self):
@@ -217,18 +220,23 @@ class Simulation:
 
     def isAtDensityEquilibirum(self, threshold: float = 0.5):
         error = np.sum(np.abs(self.lastStepFluid - self.fluid))
-        print(error)
+        #print(error)
         if error > threshold:
             return False
         else:
             return True
         
 
-    def simulateUntilEquilibrium(self, limit: int = 5000, threshold: float = 0.5):
+    def simulateUntilEquilibrium(self, limit: int = 5000, equilTreshold: float = 0.5, explodeTreshold: float = 400):
+        step = 0
+        isStable = True
         for _ in range(limit):
             self.stepSimulation()
-            if self.isAtDensityEquilibirum(threshold):
-                break
-            else:
-                pass
             step += 1
+            if np.average(self.fluid) > explodeTreshold:
+                isStable = False
+                break
+            if self.isAtDensityEquilibirum(equilTreshold):
+                break
+
+        return step, isStable
