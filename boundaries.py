@@ -22,8 +22,8 @@ class WallBoundary:
         self.invert = invert  # True if boundary, False if not
         self.boundary = np.full((yResolution, xResolution), invert)
         self.invertedBoundary = np.invert(self.boundary)
-        self.boundaryIndex = None
-        self.invertedBoundaryIndex = None
+        self.boundaryIndex = []
+        self.invertedBoundaryIndex = []
         self.possibleACPos = None
         self.possibleACDirections = None
 
@@ -31,7 +31,6 @@ class WallBoundary:
         self.invertedBoundary = np.invert(self.boundary)
 
     def generateIndex(self):
-        self.boundaryIndex = []
         for i, j in itr.product(range(self.yResolution), range(self.xResolution)):
             if self.boundary[i, j] != self.invert:
                 self.boundaryIndex.append((i, j))
