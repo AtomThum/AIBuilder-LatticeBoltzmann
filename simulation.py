@@ -53,6 +53,8 @@ class Simulation:
         self.speedX = self.momentumX / self.density
         self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
         self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
+        
+        self.vorticity = None
 
     def updateDensity(self):
         self.density = np.sum(self.fluid, axis=2)
@@ -70,6 +72,11 @@ class Simulation:
         self.speedX = self.momentumX / self.density
         self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
         self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
+    
+    def updateVorticity(self):
+        diffY = np.gradient(self.speedY, axis = 1)
+        diffX = np.gradient(self.speedX, axis = 0)
+        self.vorticity = diffX - diffY
 
     def streamFluid(self):
         for latticeIndex, shiftY, shiftX in zip(
