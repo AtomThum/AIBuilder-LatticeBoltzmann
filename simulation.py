@@ -53,7 +53,7 @@ class Simulation:
         self.speedX = self.momentumX / self.density
         self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
         self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
-        
+
         self.vorticity = None
 
     def updateDensity(self):
@@ -72,10 +72,10 @@ class Simulation:
         self.speedX = self.momentumX / self.density
         self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
         self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
-    
+
     def updateVorticity(self):
-        diffY = np.gradient(self.speedY, axis = 1)
-        diffX = np.gradient(self.speedX, axis = 0)
+        diffY = np.gradient(self.speedY, axis=1)
+        diffX = np.gradient(self.speedX, axis=0)
         self.vorticity = diffX - diffY
 
     def streamFluid(self):
@@ -95,7 +95,9 @@ class Simulation:
                 if self.fluid[y, x, latticeIndex] != 0:
                     bounceIndexY = y - Simulation.unitY[latticeIndex]
                     bounceIndexX = x - Simulation.unitX[latticeIndex]
-                    if (bounceIndexY >= 0 and bounceIndexY < self.yResolution) and (bounceIndexX >= 0 and bounceIndexX < self.xResolution):
+                    if (bounceIndexY >= 0 and bounceIndexY < self.yResolution) and (
+                        bounceIndexX >= 0 and bounceIndexX < self.xResolution
+                    ):
                         self.fluid[
                             bounceIndexY,
                             bounceIndexX,
@@ -227,14 +229,18 @@ class Simulation:
 
     def isAtDensityEquilibirum(self, threshold: float = 0.5):
         error = np.sum(np.abs(self.lastStepFluid - self.fluid))
-        #print(error)
+        # print(error)
         if error > threshold:
             return False
         else:
             return True
-        
 
-    def simulateUntilEquilibrium(self, limit: int = 5000, equilTreshold: float = 0.5, explodeTreshold: float = 400):
+    def simulateUntilEquilibrium(
+        self,
+        limit: int = 5000,
+        equilTreshold: float = 0.5,
+        explodeTreshold: float = 400,
+    ):
         step = 0
         isStable = True
         for _ in range(limit):
