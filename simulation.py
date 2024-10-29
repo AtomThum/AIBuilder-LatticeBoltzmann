@@ -252,5 +252,9 @@ class Simulation:
                 break
             if self.isAtDensityEquilibirum(equilibriumThreshold):
                 break
-
+        
         return step, isStable
+
+    def getMomentum(self):
+        totalSpeed = np.sum(np.abs(self.momentumX)**2 + np.abs(self.momentumY)**2)
+        return totalSpeed
