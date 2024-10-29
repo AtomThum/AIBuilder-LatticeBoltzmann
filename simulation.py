@@ -223,6 +223,7 @@ class Simulation:
         self.collideFluid()
         self.imposeVelocityBoundaryCondition()
         self.imposePressureBoundaryCondition()
+        self.step += 1
 
     def simulate(self, step: int = 1):
         [self.stepSimulation() for _ in range(step)]
@@ -230,7 +231,7 @@ class Simulation:
     def isAtDensityEquilibirum(self, threshold: float = 0.5):
         error = np.sum(np.abs(self.lastStepFluid - self.fluid))
         # print(error)
-        if error > threshold:
+        if error >= threshold:
             return False
         else:
             return True
@@ -238,18 +239,18 @@ class Simulation:
     def simulateUntilEquilibrium(
         self,
         limit: int = 5000,
-        equilTreshold: float = 0.5,
-        explodeTreshold: float = 400,
+        equilibriumThreshold: float = 0.5,
+        explodeThreshold: float = 400,
     ):
         step = 0
         isStable = True
         for _ in range(limit):
             self.stepSimulation()
             step += 1
-            if np.average(self.fluid) > explodeTreshold:
+            if np.average(self.fluid) > explodeThreshold:
                 isStable = False
                 break
-            if self.isAtDensityEquilibirum(equilTreshold):
+            if self.isAtDensityEquilibirum(equilibriumThreshold):
                 break
 
         return step, isStable

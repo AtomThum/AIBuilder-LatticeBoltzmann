@@ -4,7 +4,6 @@ import math
 import itertools as itr
 import random
 from scipy.ndimage import convolve
-from simulation import Simulation
 
 np.seterr(divide=None, invalid=None)
 
@@ -17,7 +16,16 @@ def addTuple(a, b):
     return tuple(i + j for i, j in zip(a, b))
 
 
+def angleToPosition(magnitude: float, angle: float):
+    return magnitude * np.array([[np.sin(angle), np.cos(angle)]])
+
+
 class WallBoundary:
+    unitVect = np.array(
+        [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    )
+    unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
+    unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
     mineSweeper = [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
     directions = [(1, -1), (1, 1), (1, 1), (-1, 1), (1, -1), (1, 1), (-1, 1), (-1, -1)]
     unitVect = np.array(
@@ -156,13 +164,18 @@ class WallBoundary:
             for latticeIndex in [1, 2, 3, 4, 5, 6, 7, 8, 0]:
                 nextIndex = addTuple(
                     currentIndex,
-                    (Simulation.unitY[latticeIndex], Simulation.unitX[latticeIndex]),
+                    (
+                        WallBoundary.unitX[latticeIndex],
+                        WallBoundary.unitY[latticeIndex],
+                    ),
                 )
                 if testArray[nextIndex]:
                     self.possibleACIndex.append(nextIndex)
-                    testArray[nextIndex] = False
+                    testArray[currentIndex] = 0
                     currentIndex = nextIndex
                     break
+                else:
+                    pass
 
     def cylindricalWall(self, cylinderCenter: list, cylinderRadius: float):
         for yIndex, xIndex in itr.product(
@@ -230,8 +243,38 @@ class PressureBoundary:
 
 
 class VelocityBoundary:
-    def __init__(self, y: int, x: int, magnitude: tuple, direction: tuple):
+    def __init__(self, y: int, x: int, magnitude, direction):
         self.y = y
         self.x = x
         self.magnitude = magnitude  # Follows the e conventions
         self.direction = np.array(direction)
+
+
+class AC:
+    unitVect = np.array(
+        [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    )
+    unitVectInv = np.transpose(np.linalg.pinv(unitVect))
+
+    def __init__(
+        self, y: int, x: int, magnitude: float, angle: float, threshold: float = 0.4
+    ):
+        self.y = y
+        self.x = x
+        self.magnitude = magnitude
+        self.angle = angle
+        self.threshold = threshold
+
+        self.velocityBoundaries = []
+
+        testVect = angleToPosition(self.angle, self.magnitude)
+        result = np.matmul(AC.unitVectInv, np.transpose(testVect))
+        result = result.reshape(9)
+
+        for i in range(9):
+            if result[i] > self.threshold:
+                self.velocityBoundaries.append(
+                    VelocityBoundary(self.y, self.x, result[i], i)
+                )
+            else:
+                pass
