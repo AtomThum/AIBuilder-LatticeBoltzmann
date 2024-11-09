@@ -52,10 +52,10 @@ class WallBoundary:
         self.cutSizesY = []
 
         self.possiblePositions = [
-            (int(self.yResolution / 3), self.xResolution - 1),
-            (0, int(self.xResolution / 3)),
-            (int(self.yResolution / 3), 0),
-            (self.yResolution - 1, int(self.xResolution / 3)),
+            (int(self.yResolution / 2), self.xResolution - 1),
+            (0, int(self.xResolution / 2)),
+            (int(self.yResolution / 2), 0),
+            (self.yResolution - 1, int(self.xResolution / 2)),
             (0, self.xResolution - 1),
             (0, 0),
             (self.yResolution - 1, 0),
@@ -78,24 +78,31 @@ class WallBoundary:
     def generateRoom(self):
         for i in random.sample(range(8), k=random.randint(1, 8)):
             wallPos = self.possiblePositions[i]
-            maxSize = int(min(self.yResolution, self.xResolution) * 0.4)
-            minSize = int(min(self.yResolution, self.xResolution) * 0.2)
-            sizeX = random.randint(minSize, maxSize)
-            sizeY = random.randint(minSize, maxSize)
             if random.random() < 0.5:
-                self.cylindricalWall(wallPos, sizeX)
+                maxSize = int(min(self.yResolution, self.xResolution) * 0.2)
+                minSize = int(min(self.yResolution, self.xResolution) * 0.1)
+                sizeR = random.randint(minSize, maxSize)
+                self.cylindricalWall(wallPos, sizeR)
                 self.cutTypes.append(0)
                 self.cutPositionsX.append(wallPos[1])
                 self.cutPositionsY.append(wallPos[0])
-                self.cutSizesX.append(sizeX)
-                self.cutSizesY.append(sizeX)
+                self.cutSizesX.append(sizeR)
+                self.cutSizesY.append(sizeR)
 
             else:
-                endPos = (
-                    wallPos[0] + (sizeY * WallBoundary.directions[i][0]),
-                    wallPos[1] + (sizeX * WallBoundary.directions[i][1]),
+                maxSize = int(min(self.yResolution, self.xResolution) * 0.3)
+                minSize = int(min(self.yResolution, self.xResolution) * 0.1)
+                sizeX = random.randint(minSize, maxSize)
+                sizeY = random.randint(minSize, maxSize)
+                rectPos = (
+                    wallPos[0] - ((sizeY * WallBoundary.directions[i][0])/2),
+                    wallPos[1] - ((sizeX * WallBoundary.directions[i][1])/2),
                 )
-                self.filledStraightRectangularWall(wallPos, endPos)
+                endPos = (
+                    wallPos[0] + ((sizeY * WallBoundary.directions[i][0])/2),
+                    wallPos[1] + ((sizeX * WallBoundary.directions[i][1])/2),
+                )
+                self.filledStraightRectangularWall(rectPos, endPos)
                 self.cutTypes.append(1)
                 self.cutPositionsX.append(wallPos[1])
                 self.cutPositionsY.append(wallPos[0])
@@ -103,14 +110,14 @@ class WallBoundary:
                 self.cutSizesY.append(sizeY)
 
         return {
-            "SizeX": self.xResolution,
-            "SizeY": self.yResolution,
-            "NumberOfCuts": len(self.cutTypes),
-            "TypesOfCuts": self.cutTypes,
-            "CutPositionsX": self.cutPositionsX,
-            "CutPositionsY": self.cutPositionsY,
-            "CutSizesX": self.cutSizesX,
-            "CutSizesY": self.cutSizesY,
+            "SizeX": [self.xResolution],
+            "SizeY": [self.yResolution],
+            "NumberOfCuts": [len(self.cutTypes)],
+            "TypesOfCuts": [self.cutTypes],
+            "CutPositionsX": [self.cutPositionsX],
+            "CutPositionsY": [self.cutPositionsY],
+            "CutSizesX": [self.cutSizesX],
+            "CutSizesY": [self.cutSizesY],
         }
 
     def generateACPosandDirections(self):
