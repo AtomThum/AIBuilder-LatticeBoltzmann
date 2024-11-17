@@ -124,6 +124,8 @@ and that
 	\vv{f}_i(n, m; t + \Dd{t}) = f_i(n, m; t + \Dd{t})\vv{e}_i.
 \end{equation}
 
+The relaxation value that's used throughout this project is $\tau = 0.8070$, which is said to be the most numerically stable \cite{zhao-2013}.
+
 \subsection{Streaming step}
 
 Using the vector that's adjusted to the equilibrium from the self-collision step, that vector is streamed to the adjacent cells, given by
@@ -204,6 +206,19 @@ These directions live on a grid relative to direction $a$ as illustrated in \cre
 	\caption{Directions relative to the convention given by the wall-velocity boundary condition. The shaded region is the wall, and the cell with vector arrows is the target cell in which wall-velocity boundary condition is applied.}
 	\label{fig:relative-direction}
 \end{figure}
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{C C | C C C C C C}
+		a & b & \alpha & \beta & A & B & C & D \\
+		\hline
+		1 & 4 & 3      & 2     & 8 & 7 & 6 & 5 \\
+		2 & 1 & 4      & 3     & 5 & 8 & 7 & 6 \\
+		3 & 2 & 1      & 4     & 6 & 5 & 8 & 7 \\
+		4 & 3 & 2      & 1     & 7 & 6 & 5 & 8
+	\end{tabular}
+	\caption{Directions relative to the convention given by the wall-velocity boundary condition.}
+	\label{tab:relative-direction}
+\end{table}
 
 Given that
 \begin{equation}

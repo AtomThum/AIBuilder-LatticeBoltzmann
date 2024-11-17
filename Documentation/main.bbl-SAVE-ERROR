@@ -1,0 +1,98 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{anyvt/global//global/global}
+    \entry{adams-no-date}{online}{}
+      \name{author}{1}{}{%
+        {{hash=0f16b579925d5e5312ea2d148a2b31e0}{%
+           family={Adams},
+           familyi={A\bibinitperiod},
+           given={Van\bibnamedelimb Hunter},
+           giveni={V\bibinitperiod}}}%
+      }
+      \strng{namehash}{0f16b579925d5e5312ea2d148a2b31e0}
+      \strng{fullhash}{0f16b579925d5e5312ea2d148a2b31e0}
+      \strng{bibnamehash}{0f16b579925d5e5312ea2d148a2b31e0}
+      \strng{authorbibnamehash}{0f16b579925d5e5312ea2d148a2b31e0}
+      \strng{authornamehash}{0f16b579925d5e5312ea2d148a2b31e0}
+      \strng{authorfullhash}{0f16b579925d5e5312ea2d148a2b31e0}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Lattice-Boltzmann in Python, C, and Verilog}
+      \field{urlday}{15}
+      \field{urlmonth}{11}
+      \field{urlyear}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://vanhunteradams.com/DE1/Lattice_Boltzmann/Lattice_Boltzmann.html
+      \endverb
+      \verb{url}
+      \verb https://vanhunteradams.com/DE1/Lattice_Boltzmann/Lattice_Boltzmann.html
+      \endverb
+    \endentry
+    \entry{zou-1997}{article}{}
+      \name{author}{2}{}{%
+        {{hash=3a7ac91b1c99c48d20e6e9e9ef621631}{%
+           family={Zou},
+           familyi={Z\bibinitperiod},
+           given={Qisu},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=db1131629e1713a3a52aa8be05262a69}{%
+           family={He},
+           familyi={H\bibinitperiod},
+           given={Xiaoyi},
+           giveni={X\bibinitperiod}}}%
+      }
+      \strng{namehash}{6d07d14d56745b54e346b3543b463d77}
+      \strng{fullhash}{6d07d14d56745b54e346b3543b463d77}
+      \strng{bibnamehash}{6d07d14d56745b54e346b3543b463d77}
+      \strng{authorbibnamehash}{6d07d14d56745b54e346b3543b463d77}
+      \strng{authornamehash}{6d07d14d56745b54e346b3543b463d77}
+      \strng{authorfullhash}{6d07d14d56745b54e346b3543b463d77}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{1}
+      \field{journaltitle}{Physics of Fluids}
+      \field{month}{6}
+      \field{number}{6}
+      \field{title}{On pressure and velocity boundary conditions for the lattice Boltzmann BGK model}
+      \field{volume}{9}
+      \field{year}{1997}
+      \field{dateera}{ce}
+      \field{pages}{1591\bibrangedash 1598}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1063/1.869307
+      \endverb
+      \verb{urlraw}
+      \verb https://pubs.aip.org/aip/pof/article-abstract/9/6/1591/260464/On-pressure-and-velocity-boundary-conditions-for?redirectedFrom=fulltext
+      \endverb
+      \verb{url}
+      \verb https://pubs.aip.org/aip/pof/article-abstract/9/6/1591/260464/On-pressure-and-velocity-boundary-conditions-for?redirectedFrom=fulltext
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
