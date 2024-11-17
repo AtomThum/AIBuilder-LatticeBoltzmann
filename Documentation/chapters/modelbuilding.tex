@@ -1,6 +1,11 @@
-\chapter{Model building}
+\chapter{Building the simulation framework}
+\label{sec:model-building}
 
 The implementation of the model in \texttt{Python} is different from the theoretical model due to some \texttt{NumPy} functions. This chapter serves as an overview for self-implementing the model. The codes in this chapter are not the actual code used in the \texttt{GitHub} repository. It's liberated from the object-oriented paradigms for ease of understanding. All of these will be pieced together in \cref{sec:model-structure}
+
+This idea of implementing the simulation is actually an amalgamation of various ones. The article by \Citeauthor{adams-no-date} \cite{adams-no-date} and \Citeauthor{schroeder-2012} \cite{schroeder-2012} gave us a very comprehensive overview of the Lattice-Boltzmann method with boundaries condition, and also provided us with the intuition for creating our own ways of implementing. The inspiration for using the roll function is from \Citeauthor{matias-2022}'s video on Lattice-Boltzmann simulator \cite{matias-2022}. However, that video is quite old and uses a rather strange technique of implementing the boundary conditions, which leads to many numerical instabilities. Most of the time that's spent on this project is to make the boundary condition work. At the end, it did work, with the by product of sweat and tears. We don't want anyone to suffer through them with us. So, here is how we did it.
+
+\section{Preliminary quantities}
 
 The packages that are used throughout the project is imported as follows:
 \begin{minted}{python}
@@ -19,8 +24,9 @@ unitVect = np.array(
 )
 unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
 unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
+weight = np.array([4/9, 1/9, 1/9, 1/9, 1/9, 1/36, 1/36, 1/36, 1/36])
 \end{minted}
-The \texttt{unitVect} array represents the vector $\vv{e}_0,\dots,\vv{e}_8$. \texttt{unitX} and \texttt{unitY} array represents the dot product of these vectors to $\xhat$ and $\yhat$ respectively.
+The \texttt{unitVect} array represents the vector $\vv{e}_0,\dots,\vv{e}_8$. \texttt{unitX} and \texttt{unitY} array represents the dot product of these vectors to $\xhat$ and $\yhat$ respectively. Lastly, the \texttt{weight} array represents the weight that's used to calculate.
 
 \section{Preliminary functions}
 
@@ -316,10 +322,75 @@ def imposeVelocityBoundaryCondition(fluid):
 \section{Simulation functions}
 \label{sec:simulation-function}
 
-Here, it's time to write the actual code for simulating the fluid. There will be three main functions that are used: \texttt{streamFluid}, \texttt{bounceBackFluid}, and \texttt{collideFluid}. All of which follows the main steps of the Lattice-Boltzmann method: streaming, self-collision, and wall boundary.
+Here, it's time to write the actual code for simulating the fluid. There are three functions that are used: \texttt{streamFluid}, \texttt{bounceBackFluid}, and \texttt{collideFluid}. All of which follows the main steps of the Lattice-Boltzmann method: streaming, self-collision, and wall boundary.
 
-This idea of implementing the simulation is actually an amalgamation of various ones. The article by \Citeauthor{adams-no-date} \cite{adams-no-date} and \Citeauthor{schroeder-2012} \cite{schroeder-2012} gave us a very comprehensive overview of the Lattice-Boltzmann method with boundaries condition, and also provided us with the intuition for creating our own ways of implementing. The inspiration for using the roll function is from \Citeauthor{matias-2022}'s video on Lattice-Boltzmann simulator \cite{matias-2022}. However, that video is quite old and uses a rather strange technique of implementing the boundary conditions, which leads to many numerical instabilities. So, most of the boundary conditions code for us to head scratch. It did work at the end, and here is how we did it.
+\paragraph{Streaming step} Earlier, we calculated the value of $\vv{e}_i\vdot\yhat$ and $\vv{e}_i\vdot\xhat$, and stored it into the array \texttt{unitX} and \texttt{unitY}. These quantities are then used to shift the array in their respective directions, representing the streaming step.
+\begin{minted}{python}
+def streamFluid(fluid):
+    for latticeIndex, shiftY, shiftX in zip(
+        range(9), unitY, unitX
+    ):
+        fluid[:, :, latticeIndex] = np.roll(
+            fluid[:, :, latticeIndex], shiftY, axis=0
+        )
+        fluid[:, :, latticeIndex] = np.roll(
+            fluid[:, :, latticeIndex], shiftX, axis=1
+        )
+\end{minted}
 
-Firstly, the fluid is streamed by using \texttt{np.roll} along the various axes.
+\paragraph{Self-collision step} The code follows from \cref{eq:self-collision-calculation-1,eq:self-collision-calculation-2}. It iterates through every fluid vectors in a lattice and update them accordingly.
+\begin{minted}{python}
+def collideFluid(fluid):
+    fluidEquilibrium = np.zeros(fluid.shape)
+    for latticeIndex, cy, cx, w in zip(
+        range(9), unitY, unitX, weight,
+    ):
+        fluidEquilibrium[:, :, latticeIndex] = (
+            density
+            * w
+            * (
+                1
+                + 3 * (cx * speedX + cy * speedY)
+                + 9 * (cx * speedX + cy * speedY) ** 2 / 2
+                - 3 * (speedX**2 + speedY**2) / 2
+            )
+        )
+    fluid += (fluidEquilibrium - fluid) / relaxationTime
+\end{minted}
+
+\paragraph{Imposing wall boundary condition} We define a dictionary \texttt{reflectIndices} to convert from the index that's pointing into the wall to the index that points opposing the wall. The elements of the dictionary directly reflect the relation given by \cref{eq:wall-boundary-calculation-relation}. The part that updates the fluid directly reflects \cref{eq:wall-boundary-calculation}.
+
+\begin{minted}{python}
+boundaryIndex, invertedBoundaryIndex = generateIndex(boundary)
+reflectIndices = {0: 0, 1: 3, 2: 4, 3: 1, 4: 2, 5: 7, 6: 8, 7: 5, 8: 6}
+def bounceBackFluid(fluid):
+    for y, x in boundaryIndex:
+        for latticeIndex in range(9):
+            if fluid[y, x, latticeIndex] != 0:
+                bounceIndexY = y - unitY[latticeIndex]
+                bounceIndexX = x - unitX[latticeIndex]
+                if (bounceIndexY >= 0 and bounceIndexY < yResolution) and (
+                    bounceIndexX >= 0 and bounceIndexX < xResolution
+                ):
+                    fluid[
+                        bounceIndexY,
+                        bounceIndexX,
+                        reflectIndices[latticeIndex],
+                    ] = fluid[y, x, latticeIndex]
+                    fluid[y, x, latticeIndex] = 0
+    updateSpeed()
+\end{minted}
 
 \section{Main loop}
+
+We first define a counter that counts the amount of times that we ran the simulation: \texttt{step}. For further comparison, we deep-copy the state of the fluid before updating to the variable \texttt{lastStepFluid}. Then, the fluid vector is updated in order: stream, bounce back, self-collide, impose velocity, and impose density.
+\begin{minted}{python}
+def stepSimulation(fluid):
+    lastStepFluid = copy.deepcopy(fluid)
+    streamFluid()
+    bounceBackFluid()
+    collideFluid()
+    imposeVelocityBoundaryCondition()
+    imposePressureBoundaryCondition()
+    step += 1
+\end{minted}

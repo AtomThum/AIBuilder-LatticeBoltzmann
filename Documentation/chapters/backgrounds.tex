@@ -100,7 +100,7 @@ The velocity density at a certain cell is just the ratio between the momentum de
 
 The self-collision step represents the relaxation of fluid that happens inside a cell. In each of the fluid vectors $\vv{f}_0,\dots,\vv{f}_8$, a corresponding equilibrium vector is assigned by
 \begin{equation}
-	\vv{E}_i(n, m) = w_i\rho\ab(1 + 3\vv{e}_i \cdot \vv{u}(n, m) + \frac{9}{2}\ab(\vv{e}_i \cdot \vv{u}(n, m))^2 - \frac{3}{2}|\vv{u}(n, m)|^2)\vv{e}_i
+	\vv{E}_i(n, m) = w_i\rho\ab(1 + 3\vv{e}_i \cdot \vv{u}(n, m) + \frac{9}{2}\ab(\vv{e}_i \cdot \vv{u}(n, m))^2 - \frac{3}{2}|\vv{u}(n, m)|^2)\vv{e}_i \label{eq:self-collision-calculation-1}
 \end{equation}
 where $w_i$ is a weighting factor that's given by the reduction of Boltzmann's distribution:
 \begin{gather}
@@ -117,7 +117,7 @@ The corresponding equilibrium scalar $E_i(n, m)$, is given by the relation
 
 However, a fluid cannot possibly reach its own equilibrium in just one step; therefore, the Lattice-Boltzmann adjusts the fluid vector to approach the equilibrium vector. This behavior is captured by the relaxation time $\tau$. For the set of fluid vector positioned at the cell $(n, m)$ at time $t$, $f_i(n, m; t)$, the fluid vector at the next time step, $t + \Dd{t}$ is given by
 \begin{equation}
-	f_i(n, m; t + \Dd{t}) = f_i(n, m; t) + \frac{1}{\tau}\ab(E_i(n, m; t) - f_i(n, m; t)),
+	f_i(n, m; t + \Dd{t}) = f_i(n, m; t) + \frac{1}{\tau}\ab(E_i(n, m; t) - f_i(n, m; t)), \label{eq:self-collision-calculation-2}
 \end{equation}
 and that
 \begin{equation}
@@ -157,14 +157,14 @@ There are two boundaries condition that needs to be implemented in this problem:
 
 \paragraph{Wall boundary condition} This boundary condition is sometimes referred off as the bounce-back boundary condition. If the fluid from an adjacent cell is streamed into a wall located at $(n, m)$, the wall simply reflects the fluid vector back:
 \begin{equation}
-	f_j\ab(n - (\e_i \vdot \yhat), m - (\e_i \vdot \xhat)) = f_i(n, m)
+	f_j\ab(n - (\vv{e}_i \vdot \yhat), m - (\vv{e}_i \vdot \xhat)) = f_i(n, m) \label{eq:wall-boundary-calculation}
 \end{equation}
 where
 \begin{equation}
 	j = \begin{cases}
 		i + 2 & \textrm{if} ~ i = 1, 2, 5, 6, \\
 		i - 2 & \textrm{if} ~ i = 3, 4, 7, 8.
-	\end{cases}
+	\end{cases} \label{eq:wall-boundary-calculation-relation}
 \end{equation}
 Since the fluid cannot possibly stream into the center of the wall, $j$ doesn't have to be defined at $i = 0$. \cite{adams-no-date}
 

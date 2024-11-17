@@ -1,2 +1,65 @@
-\chapter{Model structure}
+\chapter{Framework structure}
 \label{sec:model-structure}
+
+As said, we shall enforce the object-oriented paradigm of \texttt{Python} by turning everything into an object. Firstly, a class that initializes the simulation called \texttt{Simulation} that's initialized with the following variables
+\begin{itemize}[noitemsep]
+	\item \texttt{yResolution: int}
+	\item \texttt{xResolution: int}
+	\item \texttt{initCondition: np.array}
+	\item \texttt{wallboundary: WallBoundary}
+	\item \texttt{densityBoundaries: list = []}
+	\item \texttt{velocityBoundaries: list = []}
+	\item \texttt{relaxationTime: float = 0.8090}
+	\item \texttt{initialStep: int = 0}
+\end{itemize}
+Some class variables is also baked into the class
+\begin{minted}{python}
+class Simulation:
+    unitVect = np.array(
+        [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    )
+    unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
+    unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
+    weight = np.array(
+        [4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36]
+    )
+    latticeSize = 9
+    reflectIndices = {0: 0, 1: 3, 2: 4, 3: 1, 4: 2, 5: 7, 6: 8, 7: 5, 8: 6}
+\end{minted}
+Then, the following class variables are calculated:
+\begin{minted}{python}
+self.yResolution = yResolution
+self.xResolution = xResolution
+self.yIndex = np.arange(yResolution)
+self.xIndex = np.arange(xResolution)
+self.initCondition = copy.deepcopy(initCondition)
+self.fluid = copy.deepcopy(initCondition)
+self.lastStepFluid = initCondition
+self.relaxationTime = relaxationTime
+self.wallBoundary = wallBoundary
+self.wallBoundary.generateIndex()
+self.fluid[self.wallBoundary.boundary, :] = 0
+self.pressureBoundaries = pressureBoundaries
+self.velocityBoundaries = velocityBoundaries
+self.step = initialStep
+
+self.density = np.sum(self.fluid, axis=2)
+self.momentumY = np.sum(self.fluid * Simulation.unitY, axis=2)
+self.momentumX = np.sum(self.fluid * Simulation.unitX, axis=2)
+self.speedY = self.momentumY / self.density
+self.speedX = self.momentumX / self.density
+self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
+self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
+\end{minted}
+In this class contains the following main functions that are used to simulate the fluid:
+\begin{itemize}[noitemsep]
+	\item \texttt{updateDensity(self)}
+	\item \texttt{updateMomentum(self)}
+	\item \texttt{updateSpeed(self)}
+	\item \texttt{streamFluid(self)}
+	\item \texttt{bounceBackFluid(self)}
+	\item \texttt{collideFluid(self)}
+	\item \texttt{imposeVelocityBoundaryCondition(self)}
+	\item \texttt{imposePressureBoundaryCondition(self)}
+	\item \texttt{stepSimulation(self)}
+\end{itemize}
