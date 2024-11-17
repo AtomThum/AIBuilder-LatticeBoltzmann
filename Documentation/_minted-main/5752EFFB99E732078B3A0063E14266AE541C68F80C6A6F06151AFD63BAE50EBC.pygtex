@@ -1,0 +1,13 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{generateIndex}\PYG{p}{(}\PYG{n}{boundary}\PYG{p}{):}
+    \PYG{n}{boundaryIndex} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{invertedBoundaryIndex} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{j} \PYG{o+ow}{in} \PYG{n}{itr}\PYG{o}{.}\PYG{n}{product}\PYG{p}{(}
+        \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{yResolution}\PYG{p}{),} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{xResolution}\PYG{p}{)}
+    \PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{boundary}\PYG{p}{[}\PYG{n}{i}\PYG{p}{,} \PYG{n}{j}\PYG{p}{]} \PYG{o}{!=} \PYG{k+kc}{False}\PYG{p}{:}
+            \PYG{n}{boundaryIndex}\PYG{o}{.}\PYG{n}{append}\PYG{p}{((}\PYG{n}{i}\PYG{p}{,} \PYG{n}{j}\PYG{p}{))}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n}{invertedBoundaryIndex}\PYG{o}{.}\PYG{n}{append}\PYG{p}{((}\PYG{n}{i}\PYG{p}{,} \PYG{n}{j}\PYG{p}{))}
+    \PYG{k}{return} \PYG{n}{boundaryIndex}\PYG{p}{,} \PYG{n}{invertedBoundaryIndex}
+\end{Verbatim}

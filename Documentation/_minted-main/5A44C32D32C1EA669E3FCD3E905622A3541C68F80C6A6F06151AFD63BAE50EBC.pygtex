@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{import} \PYG{n+nn}{matplotlib.pyplot} \PYG{k}{as} \PYG{n+nn}{plt}
+\PYG{k+kn}{import} \PYG{n+nn}{itertools} \PYG{k}{as} \PYG{n+nn}{itr}
+\PYG{k+kn}{from} \PYG{n+nn}{scipy.ndimage} \PYG{k+kn}{import} \PYG{n}{convolve}
+\PYG{k+kn}{import} \PYG{n+nn}{copy}
+\PYG{k+kn}{import} \PYG{n+nn}{random}
+\PYG{k+kn}{import} \PYG{n+nn}{math}
+\end{Verbatim}

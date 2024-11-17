@@ -1,0 +1,22 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{filledStraightRectangularWall}\PYG{p}{(}
+    \PYG{n}{boundary}\PYG{p}{,}
+    \PYG{n}{cornerCoord1}\PYG{p}{:} \PYG{n+nb}{tuple}\PYG{p}{,}
+    \PYG{n}{cornerCoord2}\PYG{p}{:} \PYG{n+nb}{tuple}
+\PYG{p}{):}
+    \PYG{n}{maxY} \PYG{o}{=} \PYG{n+nb}{max}\PYG{p}{(}\PYG{n}{cornerCoord1}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{cornerCoord2}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{])}
+    \PYG{n}{minY} \PYG{o}{=} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{cornerCoord1}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{cornerCoord2}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{])}
+    \PYG{n}{maxX} \PYG{o}{=} \PYG{n+nb}{max}\PYG{p}{(}\PYG{n}{cornerCoord1}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{cornerCoord2}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{])}
+    \PYG{n}{minX} \PYG{o}{=} \PYG{n+nb}{min}\PYG{p}{(}\PYG{n}{cornerCoord1}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{cornerCoord2}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{])}
+
+    \PYG{k}{for} \PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex} \PYG{o+ow}{in} \PYG{n}{itr}\PYG{o}{.}\PYG{n}{product}\PYG{p}{(}
+        \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{yResolution}\PYG{p}{),} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{yResolution}\PYG{p}{)}
+    \PYG{p}{):}
+        \PYG{k}{if} \PYG{p}{(}
+            \PYG{p}{(}\PYG{n}{xIndex} \PYG{o}{\PYGZlt{}=} \PYG{n}{maxX}\PYG{p}{)}
+            \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{xIndex} \PYG{o}{\PYGZgt{}=} \PYG{n}{minX}\PYG{p}{)}
+            \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{yIndex} \PYG{o}{\PYGZlt{}=} \PYG{n}{maxY}\PYG{p}{)}
+            \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{yIndex} \PYG{o}{\PYGZgt{}=} \PYG{n}{minY}\PYG{p}{)}
+        \PYG{p}{):}
+            \PYG{n}{boundary}\PYG{p}{[}\PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{True}
+\end{Verbatim}

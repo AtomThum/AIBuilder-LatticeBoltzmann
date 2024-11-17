@@ -1,0 +1,17 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{updateDensity}\PYG{p}{():}
+    \PYG{n}{density} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{fluid}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{updateMomentum}\PYG{p}{():}
+    \PYG{n}{momentumY} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{fluid} \PYG{o}{*} \PYG{n}{unitY}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+    \PYG{n}{momentumX} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{fluid} \PYG{o}{*} \PYG{n}{unitX}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{updateSpeed}\PYG{p}{():}
+    \PYG{n}{updateDensity}\PYG{p}{()}
+    \PYG{n}{updateMomentum}\PYG{p}{()}
+
+    \PYG{n}{speedY} \PYG{o}{=} \PYG{n}{momentumY} \PYG{o}{/} \PYG{n}{density}
+    \PYG{n}{speedX} \PYG{o}{=} \PYG{n}{momentumX} \PYG{o}{/} \PYG{n}{density}
+    \PYG{n}{speedY} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{nan\PYGZus{}to\PYGZus{}num}\PYG{p}{(}\PYG{n}{speedY}\PYG{p}{,} \PYG{n}{posinf}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{neginf}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{nan}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{n}{speedX} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{nan\PYGZus{}to\PYGZus{}num}\PYG{p}{(}\PYG{n}{speedX}\PYG{p}{,} \PYG{n}{posinf}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{neginf}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{nan}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{)}
+\end{Verbatim}

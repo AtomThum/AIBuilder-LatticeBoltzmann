@@ -1,0 +1,28 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{indexPossibleACPos}\PYG{p}{(}\PYG{n}{possibleACPos}\PYG{p}{,} \PYG{n}{clear}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{False}\PYG{p}{):}
+    \PYG{n}{testArray} \PYG{o}{=} \PYG{n}{copy}\PYG{o}{.}\PYG{n}{deepcopy}\PYG{p}{(}\PYG{n}{possibleACPos}\PYG{p}{)}
+    \PYG{n}{currentIndex} \PYG{o}{=} \PYG{n+nb}{tuple}\PYG{p}{()}
+    \PYG{k}{for} \PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex} \PYG{o+ow}{in} \PYG{n}{itr}\PYG{o}{.}\PYG{n}{product}\PYG{p}{(}
+        \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{yResolution}\PYG{p}{),} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{xResolution}\PYG{p}{)}
+    \PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{testArray}\PYG{p}{[}\PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex}\PYG{p}{]:}
+            \PYG{n}{currentIndex} \PYG{o}{=} \PYG{p}{(}\PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex}\PYG{p}{)}
+            \PYG{k}{break}
+
+    \PYG{k}{while} \PYG{n}{testArray}\PYG{p}{[}\PYG{n}{currentIndex}\PYG{p}{]:}
+        \PYG{k}{for} \PYG{n}{latticeIndex} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{6}\PYG{p}{,} \PYG{l+m+mi}{7}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{]:}
+            \PYG{n}{nextIndex} \PYG{o}{=} \PYG{n}{addTuple}\PYG{p}{(}
+                \PYG{n}{currentIndex}\PYG{p}{,}
+                \PYG{p}{(}
+                    \PYG{n}{unitX}\PYG{p}{[}\PYG{n}{latticeIndex}\PYG{p}{],}
+                    \PYG{n}{unitY}\PYG{p}{[}\PYG{n}{latticeIndex}\PYG{p}{],}
+                \PYG{p}{),}
+            \PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{testArray}\PYG{p}{[}\PYG{n}{nextIndex}\PYG{p}{]:}
+                \PYG{n}{possibleACIndex}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{nextIndex}\PYG{p}{)}
+                \PYG{n}{testArray}\PYG{p}{[}\PYG{n}{currentIndex}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0}
+                \PYG{n}{currentIndex} \PYG{o}{=} \PYG{n}{nextIndex}
+                \PYG{k}{break}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{k}{pass}
+\end{Verbatim}

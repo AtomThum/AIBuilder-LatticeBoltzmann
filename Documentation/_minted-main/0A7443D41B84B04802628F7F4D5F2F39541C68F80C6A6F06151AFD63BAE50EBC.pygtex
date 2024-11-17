@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{cylindricalWall}\PYG{p}{(}\PYG{n}{boundary}\PYG{p}{,} \PYG{n}{cylinderCenter}\PYG{p}{:} \PYG{n+nb}{tuple}\PYG{p}{,} \PYG{n}{cylinderRadius}\PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{):}
+    \PYG{k}{for} \PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex} \PYG{o+ow}{in} \PYG{n}{itr}\PYG{o}{.}\PYG{n}{product}\PYG{p}{(}
+        \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{yResolution}\PYG{p}{),} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{xResolution}\PYG{p}{)}
+    \PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{math}\PYG{o}{.}\PYG{n}{dist}\PYG{p}{(}\PYG{n}{cylinderCenter}\PYG{p}{,} \PYG{p}{[}\PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex}\PYG{p}{])} \PYG{o}{\PYGZlt{}=} \PYG{n}{cylinderRadius}\PYG{p}{:}
+            \PYG{n}{boundary}\PYG{p}{[}\PYG{n}{yIndex}\PYG{p}{,} \PYG{n}{xIndex}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{True}
+\end{Verbatim}

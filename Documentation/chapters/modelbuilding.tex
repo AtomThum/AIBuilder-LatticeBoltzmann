@@ -1,14 +1,325 @@
 \chapter{Model building}
 
-The implementation of the model in \texttt{Python} is different from the theoretical model due to some \texttt{NumPy} functions.
+The implementation of the model in \texttt{Python} is different from the theoretical model due to some \texttt{NumPy} functions. This chapter serves as an overview for self-implementing the model. The codes in this chapter are not the actual code used in the \texttt{GitHub} repository. It's liberated from the object-oriented paradigms for ease of understanding. All of these will be pieced together in \cref{sec:model-structure}
 
+The packages that are used throughout the project is imported as follows:
+\begin{minted}{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import itertools as itr
+from scipy.ndimage import convolve
+import copy
+import random
+import math
+\end{minted}
+And, some useful arrays that are used throughout the project:
+\begin{minted}{python}
+unitVect = np.array(
+    [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+)
+unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
+unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
+\end{minted}
+The \texttt{unitVect} array represents the vector $\vv{e}_0,\dots,\vv{e}_8$. \texttt{unitX} and \texttt{unitY} array represents the dot product of these vectors to $\xhat$ and $\yhat$ respectively.
 
-\section{Components of simulation}
+\section{Preliminary functions}
 
-\section{Equilibrium step}
+\subsection{Representation of physical quantities}
 
-\section{Colliding step}
+The whole lattice is represented as a \texttt{NumPy} array with dimensions $(N, M, 9)$. The first axis represents the $y$ index, second represents the $x$ index, and the third one with nine elements represent the fluid vectors $\vv{f}_0, \dots, \vv{f}_8$. Since these fluid vectors actually represents the amount of fluid that's travelling inside a cell, the vectors cannot be zero. Thus, the array is set to be all ones even when the fluid at rest. One can simply initialize the array as follows:
+\begin{minted}{python}
+yResolution = 24 # Configurable
+xResolution = 36 # Configurable
+fluid = np.ones(yResolution, xResolution, 9)
+# The fluid array is to be modified according to the desired initial condition
+initCondition = np.copy(fluid)
+\end{minted}
+The array \texttt{initCondition} serves as a reference for future plotting.
 
-\section{Boundary conditions}
+For simplicity, we also define two arrays that are used throughout: \texttt{yIndex} and \texttt{xIndex} which is an array filled with numbers from $0$ to $y - 1$, and $0$ to $x - 1$ respectively.
+\begin{minted}{python}
+yIndex = np.arange(yResolution)
+xIndex = np.arange(xResolution)
+\end{minted}
 
-\section{Equilibrium detection}
+In the simulation step that is documented later in \cref{sec:simulation-function}, there must be a function that updates the density, momentum density, and velocity density of the fluid every time the simulation runs. First, we initialize the arrays that contain the density, momentum density, and the velocity density of the fluid according to \cref{eq:density-calculation,eq:momentum-calculation,eq:velocity-calculation}:
+\begin{minted}{python}
+density = np.sum(fluid, axis=2)
+momentumY = np.sum(fluid * unitY, axis=2)
+momentumX = np.sum(fluid * unitX, axis=2)
+speedY = momentumY / density
+speedX = momentumX / density
+speedY = np.nan_to_num(speedY, posinf=0, neginf=0, nan=0)
+speedX = np.nan_to_num(speedX, posinf=0, neginf=0, nan=0)
+\end{minted}
+These arrays are then updated using the following functions:
+\begin{minted}{python}
+def updateDensity():
+    density = np.sum(fluid, axis=2)
+
+def updateMomentum():
+    momentumY = np.sum(fluid * unitY, axis=2)
+    momentumX = np.sum(fluid * unitX, axis=2)
+
+def updateSpeed():
+    updateDensity()
+    updateMomentum()
+
+    speedY = momentumY / density
+    speedX = momentumX / density
+    speedY = np.nan_to_num(speedY, posinf=0, neginf=0, nan=0)
+    speedX = np.nan_to_num(speedX, posinf=0, neginf=0, nan=0)
+\end{minted}
+Since \texttt{updateSpeed} calls both \texttt{updateDensity} and \texttt{updateMomentum}, one doesn't have to call \texttt{updateDensity} and \texttt{updateMomentum} when the function \texttt{updateSpeed} is already called.
+
+\subsection{Wall boundary conditions}
+
+The wall boundaries condition is stored as another array with dimensions $(N, M)$ filled with boolean elements. If a position $(n, m)$ is \texttt{True}, then it is not a wall, else, it's a wall. This array can be used to easily impose the wall boundary condition on the \texttt{fluid} array. I.e., every point where there's a wall, there must be zero fluid; thus, the fluid vectors at those points shall be zero.
+\begin{minted}{python}
+boundary = np.full((yResolution, xResolution)) # Can be edited to be any shape desired.
+fluid[boundary, :] = 0
+\end{minted}
+
+There are two types of wall that's implemented in this framework: circular, border, and rectangular; with their own functions. The cylindrical wall function takes in the boundary array that's to be modified (\texttt{boundary}), the cylinder's center (\texttt{cylinderCenter}) as a tuple in the format $(y, x)$, and the cylinder's radius (\texttt{cylinderRadius: float}) as a floating point number:
+\begin{minted}{python}
+def cylindricalWall(boundary, cylinderCenter: tuple, cylinderRadius: float):
+    for yIndex, xIndex in itr.product(
+        range(yResolution), range(xResolution)
+    ):
+        if math.dist(cylinderCenter, [yIndex, xIndex]) <= cylinderRadius:
+            boundary[yIndex, xIndex] = True
+\end{minted}
+The border wall function takes in the boundary array (\texttt{boundary}), and the thickness of the border (\texttt{thickness: int = 1}) as an integer:
+\begin{minted}{python}
+def borderWall(boundary, thickness: int = 1):
+    boundary[0 : yResolution, -1 + thickness] = True
+    boundary[0 : yResolution, xResolution - thickness] = True
+    boundary[-1 + thickness, 0 : xResolution] = True
+    boundary[yResolution - thickness, 0 : xResolution] = True
+\end{minted}
+The rectangular wall function takes in the boundary array (\texttt{boundary}) and the position of the two corner points (\texttt{cornerCoord1: tuple, cornerCoord2: tuple}) as a tuple in the format $(y, x)$.
+\begin{minted}{python}
+def filledStraightRectangularWall(
+    boundary,
+    cornerCoord1: tuple,
+    cornerCoord2: tuple
+):
+    maxY = max(cornerCoord1[0], cornerCoord2[0])
+    minY = min(cornerCoord1[0], cornerCoord2[0])
+    maxX = max(cornerCoord1[1], cornerCoord2[1])
+    minX = min(cornerCoord1[1], cornerCoord2[1])
+
+    for yIndex, xIndex in itr.product(
+        range(yResolution), range(yResolution)
+    ):
+        if (
+            (xIndex <= maxX)
+            and (xIndex >= minX)
+            and (yIndex <= maxY)
+            and (yIndex >= minY)
+        ):
+            boundary[yIndex, xIndex] = True
+\end{minted}
+These functions directly modifies the \texttt{boundary} array. They must be called before imposing the wall boundaries to the \texttt{fluid} array.
+
+In some cases, it's more desirable to use the indices of the boundaries instead. We also write another function that's used to generate the indices of the boundaries. This function takes in the boundary array (\texttt{boundary}), and outputs two arrays: \texttt{boundaryIndex}, which is a list containing the indices of walls, and \texttt{invertedBoundaryIndex}, which is a list that contains the indices of fluids (invert of walls).
+\begin{minted}{python}
+def generateIndex(boundary):
+    boundaryIndex = []
+    invertedBoundaryIndex = []
+    for i, j in itr.product(
+        range(yResolution), range(xResolution)
+    ):
+        if boundary[i, j] != False:
+            boundaryIndex.append((i, j))
+        else:
+            invertedBoundaryIndex.append((i, j))
+    return boundaryIndex, invertedBoundaryIndex
+\end{minted}
+
+Since the end goal of this project is to simulate air conditioner placements, we also have to know the possible indices that the air conditioner can end up at. Therefore, we build a function \texttt{generateACPos} that can do so:
+\begin{minted}{python}
+def generateACDirections(boundary):
+    possibleACPos = []
+    for shiftIndex, axisIndex in itr.product([-1, 1], [1, 0]):
+        shiftedBoundary = np.roll(boundary, shift=shiftIndex, axis=axisIndex)
+        possibleACPos = np.logical_or(
+            possibleACPos,
+            np.logical_not(boundary) & shiftedBoundary
+        )
+    return possibleACPos
+\end{minted}
+This function takes in a boundary (\texttt{boundary}), then return a list of possible air conditioner positions (\texttt{possibleACPos}). It works by shifting the array \texttt{boundary} in the four cardinal directions ($i = 1, 2, 3, 4$) using the \texttt{np.roll} function, then comparing the shifted array to the original array. If a point $(n, m)$ in the original array isn't a wall, but the point $(n, m)$ on the shifted array along direction $i$ isn't a wall, then the point $(n, m)$ can hold an air conditioner that faces the direction $i$. All the possible points from all the shifted directions are combined using an or gate to obtain an array that contains all the point that can hold an air conditioner (\texttt{possibleACPos}).
+
+The last function of the wall boundary condition is a function that turns the two-dimensional contour of the possible air conditioner position into a single continuous line called \texttt{indexPossibleACPos}. This has to be done because the gradient descent algorithm that is used to find the optimal air conditioner placement has to take in a continuous variable as its parameters. This can be done by a breadth first search along the line.
+\begin{minted}{python}
+def indexPossibleACPos(possibleACPos, clear: bool = False):
+    testArray = copy.deepcopy(possibleACPos)
+    currentIndex = tuple()
+    for yIndex, xIndex in itr.product(
+        range(yResolution), range(xResolution)
+    ):
+        if testArray[yIndex, xIndex]:
+            currentIndex = (yIndex, xIndex)
+            break
+
+    while testArray[currentIndex]:
+        for latticeIndex in [1, 2, 3, 4, 5, 6, 7, 8, 0]:
+            nextIndex = addTuple(
+                currentIndex,
+                (
+                    unitX[latticeIndex],
+                    unitY[latticeIndex],
+                ),
+            )
+            if testArray[nextIndex]:
+                possibleACIndex.append(nextIndex)
+                testArray[currentIndex] = 0
+                currentIndex = nextIndex
+                break
+            else:
+                pass
+\end{minted}
+
+\subsection{Density boundary condition} This is the easiest boundary condition to impose. One can just set the fluid vectors directly. Although I want this chapter to be liberated from object-oriented programming paradigm, this one just can't. Therefore, I shall introduce a new simple class: the \texttt{DensityBoundary} class:
+\begin{minted}{python}
+class DensityBoundary:
+    def __init__(self, y: int, x: int, magnitude: float, direction: int):
+        self.y = y
+        self.x = x
+        self.magnitude = magnitude
+        self.direction = direction
+\end{minted}
+This class contains the position of the density boundary condition (\texttt{y} and \texttt{x}), the magnitude of density, and the direction that the density is imposed. The density boundary condition is imposed as follows:
+\begin{minted}{python}
+velocityBoundaries = []
+def imposeDensityBoundaryCondition(boundary, velocityBoundaries):
+    for velocityBoundary in velocityBoundaries:
+        fluid[
+            velocityBoundary.y, velocityBoundary.x, velocityBoundary.direction
+        ] = velocityBoundary.magnitude
+    updateSpeed()
+\end{minted}
+
+\subsection{Wall-velocity boundary condition}
+
+The wall-velocity boundary condition is also implemented as a class which is initialized with the $(y, x)$ position of the boundary condition and the velocity along direction $\vv{e}_a, \vv{e}_b$.
+\begin{minted}{python}
+class VelocityBoundary:
+    indices = [[1, 8, 5], [2, 5, 6], [3, 6, 7], [4, 7, 8]]
+
+    def __init__(self, y: int, x: int, ux, uy, direction: int):
+        self.y = y
+        self.x = x
+        self.uy = uy
+        self.ux = ux
+        self.direction = direction
+
+        # For calculating the ua and ub
+        if direction in [3, 4]:
+            reflectIndex = direction - 2
+        else:
+            reflectIndex = direction + 2
+
+        self.mainVelocity = ux if direction in [1, 3] else uy
+        self.minorVelocity = uy if direction in [1, 3] else ux
+        self.setIndices = VelocityBoundary.indices[direction - 1]
+        self.getIndices = VelocityBoundary.indices[reflectIndex - 1]
+\end{minted}
+All the pressure boundaries point are then stored as an object of the class \texttt{VelocityBoundaries} in a list called \texttt{velocityBoundaries}. We then iterate over the list to update the fluid simulation grid according to \cref{eq:velocity-boundary-1,eq:velocity-boundary-2,eq:velocity-boundary-3}.
+\begin{minted}{python}
+velocityBoundaries = [] # A list of pressure boundaries point
+def imposeVelocityBoundaryCondition(fluid):
+    for velocityBoundary in velocityBoundaries:
+        for latticeIndex in range(9):
+            fluid[velocityBoundary.y, pressureBoundary.x, latticeIndex] = 0
+        densityAtIndex = density[velocityBoundary.y, pressureBoundary.x]
+        fluid[
+            velocityBoundary.y, pressureBoundary.x, pressureBoundary.setIndices[0]
+        ] = fluid[
+            velocityBoundary.y, pressureBoundary.x, pressureBoundary.getIndices[0]
+        ] + (
+            2 / 3
+        ) * (
+            velocityBoundary.mainVelocity
+        )
+        fluid[
+            velocityBoundary.y, velocityBoundary.x, velocityBoundary.setIndices[1]
+        ] = (
+            fluid[
+                velocityBoundary.y,
+                velocityBoundary.x,
+                velocityBoundary.getIndices[1],
+            ]
+            - (
+                0.5
+                * (
+                    fluid[
+                        velocityBoundary.y,
+                        velocityBoundary.x,
+                        (
+                            4
+                            if velocityBoundary.direction - 1 == 0
+                            else velocityBoundary.direction - 1
+                        ),
+                    ]
+                    - fluid[
+                        velocityBoundary.y,
+                        velocityBoundary.x,
+                        (
+                            1
+                            if velocityBoundary.direction + 1 == 5
+                            else velocityBoundary.direction + 1
+                        ),
+                    ]
+                )
+            )
+            + (0.5 * densityAtIndex * velocityBoundary.minorVelocity)
+            + (1 / 6 * densityAtIndex * velocityBoundary.mainVelocity)
+        )
+        fluid[
+            velocityBoundary.y, velocityBoundary.x, velocityBoundary.setIndices[2]
+        ] = (
+            fluid[
+                velocityBoundary.y,
+                velocityBoundary.x,
+                velocityBoundary.getIndices[2],
+            ]
+            + (
+                0.5
+                * (
+                    self.fluid[
+                        velocityBoundary.y,
+                        velocityBoundary.x,
+                        (
+                            4
+                            if velocityBoundary.direction - 1 == 0
+                            else velocityBoundary.direction - 1
+                        ),
+                    ]
+                    - self.fluid[
+                        velocityBoundary.y,
+                        velocityBoundary.x,
+                        (
+                            1
+                            if velocityBoundary.direction + 1 == 5
+                            else velocityBoundary.direction + 1
+                        ),
+                    ]
+                )
+            )
+            - (0.5 * densityAtIndex * velocityBoundary.minorVelocity)
+            + (1 / 6 * densityAtIndex * velocityBoundary.mainVelocity)
+        )
+\end{minted}
+
+\section{Simulation functions}
+\label{sec:simulation-function}
+
+Here, it's time to write the actual code for simulating the fluid. There will be three main functions that are used: \texttt{streamFluid}, \texttt{bounceBackFluid}, and \texttt{collideFluid}. All of which follows the main steps of the Lattice-Boltzmann method: streaming, self-collision, and wall boundary.
+
+This idea of implementing the simulation is actually an amalgamation of various ones. The article by \Citeauthor{adams-no-date} \cite{adams-no-date} and \Citeauthor{schroeder-2012} \cite{schroeder-2012} gave us a very comprehensive overview of the Lattice-Boltzmann method with boundaries condition, and also provided us with the intuition for creating our own ways of implementing. The inspiration for using the roll function is from \Citeauthor{matias-2022}'s video on Lattice-Boltzmann simulator \cite{matias-2022}. However, that video is quite old and uses a rather strange technique of implementing the boundary conditions, which leads to many numerical instabilities. So, most of the boundary conditions code for us to head scratch. It did work at the end, and here is how we did it.
+
+Firstly, the fluid is streamed by using \texttt{np.roll} along the various axes.
+
+\section{Main loop}

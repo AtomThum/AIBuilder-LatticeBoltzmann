@@ -1,0 +1,85 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{velocityBoundaries} \PYG{o}{=} \PYG{p}{[]} \PYG{c+c1}{\PYGZsh{} A list of pressure boundaries point}
+\PYG{k}{def} \PYG{n+nf}{imposeVelocityBoundaryCondition}\PYG{p}{(}\PYG{n}{fluid}\PYG{p}{):}
+    \PYG{k}{for} \PYG{n}{velocityBoundary} \PYG{o+ow}{in} \PYG{n}{velocityBoundaries}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{latticeIndex} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{9}\PYG{p}{):}
+            \PYG{n}{fluid}\PYG{p}{[}\PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{pressureBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{latticeIndex}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n}{densityAtIndex} \PYG{o}{=} \PYG{n}{density}\PYG{p}{[}\PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{pressureBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{]}
+        \PYG{n}{fluid}\PYG{p}{[}
+            \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{pressureBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{pressureBoundary}\PYG{o}{.}\PYG{n}{setIndices}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{p}{]} \PYG{o}{=} \PYG{n}{fluid}\PYG{p}{[}
+            \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{pressureBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{pressureBoundary}\PYG{o}{.}\PYG{n}{getIndices}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{p}{]} \PYG{o}{+} \PYG{p}{(}
+            \PYG{l+m+mi}{2} \PYG{o}{/} \PYG{l+m+mi}{3}
+        \PYG{p}{)} \PYG{o}{*} \PYG{p}{(}
+            \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{mainVelocity}
+        \PYG{p}{)}
+        \PYG{n}{fluid}\PYG{p}{[}
+            \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{setIndices}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{p}{]} \PYG{o}{=} \PYG{p}{(}
+            \PYG{n}{fluid}\PYG{p}{[}
+                \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
+                \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,}
+                \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{getIndices}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{],}
+            \PYG{p}{]}
+            \PYG{o}{\PYGZhy{}} \PYG{p}{(}
+                \PYG{l+m+mf}{0.5}
+                \PYG{o}{*} \PYG{p}{(}
+                    \PYG{n}{fluid}\PYG{p}{[}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,}
+                        \PYG{p}{(}
+                            \PYG{l+m+mi}{4}
+                            \PYG{k}{if} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1} \PYG{o}{==} \PYG{l+m+mi}{0}
+                            \PYG{k}{else} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}
+                        \PYG{p}{),}
+                    \PYG{p}{]}
+                    \PYG{o}{\PYGZhy{}} \PYG{n}{fluid}\PYG{p}{[}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,}
+                        \PYG{p}{(}
+                            \PYG{l+m+mi}{1}
+                            \PYG{k}{if} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{+} \PYG{l+m+mi}{1} \PYG{o}{==} \PYG{l+m+mi}{5}
+                            \PYG{k}{else} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{+} \PYG{l+m+mi}{1}
+                        \PYG{p}{),}
+                    \PYG{p}{]}
+                \PYG{p}{)}
+            \PYG{p}{)}
+            \PYG{o}{+} \PYG{p}{(}\PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{densityAtIndex} \PYG{o}{*} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{minorVelocity}\PYG{p}{)}
+            \PYG{o}{+} \PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{/} \PYG{l+m+mi}{6} \PYG{o}{*} \PYG{n}{densityAtIndex} \PYG{o}{*} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{mainVelocity}\PYG{p}{)}
+        \PYG{p}{)}
+        \PYG{n}{fluid}\PYG{p}{[}
+            \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{setIndices}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}
+        \PYG{p}{]} \PYG{o}{=} \PYG{p}{(}
+            \PYG{n}{fluid}\PYG{p}{[}
+                \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
+                \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,}
+                \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{getIndices}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{],}
+            \PYG{p}{]}
+            \PYG{o}{+} \PYG{p}{(}
+                \PYG{l+m+mf}{0.5}
+                \PYG{o}{*} \PYG{p}{(}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fluid}\PYG{p}{[}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,}
+                        \PYG{p}{(}
+                            \PYG{l+m+mi}{4}
+                            \PYG{k}{if} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1} \PYG{o}{==} \PYG{l+m+mi}{0}
+                            \PYG{k}{else} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}
+                        \PYG{p}{),}
+                    \PYG{p}{]}
+                    \PYG{o}{\PYGZhy{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fluid}\PYG{p}{[}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
+                        \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,}
+                        \PYG{p}{(}
+                            \PYG{l+m+mi}{1}
+                            \PYG{k}{if} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{+} \PYG{l+m+mi}{1} \PYG{o}{==} \PYG{l+m+mi}{5}
+                            \PYG{k}{else} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction} \PYG{o}{+} \PYG{l+m+mi}{1}
+                        \PYG{p}{),}
+                    \PYG{p}{]}
+                \PYG{p}{)}
+            \PYG{p}{)}
+            \PYG{o}{\PYGZhy{}} \PYG{p}{(}\PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{densityAtIndex} \PYG{o}{*} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{minorVelocity}\PYG{p}{)}
+            \PYG{o}{+} \PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{/} \PYG{l+m+mi}{6} \PYG{o}{*} \PYG{n}{densityAtIndex} \PYG{o}{*} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{mainVelocity}\PYG{p}{)}
+        \PYG{p}{)}
+\end{Verbatim}

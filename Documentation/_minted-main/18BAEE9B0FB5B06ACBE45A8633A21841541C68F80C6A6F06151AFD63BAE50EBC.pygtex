@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{yResolution} \PYG{o}{=} \PYG{l+m+mi}{24} \PYG{c+c1}{\PYGZsh{} Configurable}
+\PYG{n}{xResolution} \PYG{o}{=} \PYG{l+m+mi}{36} \PYG{c+c1}{\PYGZsh{} Configurable}
+\PYG{n}{fluid} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{n}{yResolution}\PYG{p}{,} \PYG{n}{xResolution}\PYG{p}{,} \PYG{l+m+mi}{9}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} The fluid array is to be modified according to the desired initial condition}
+\PYG{n}{initCondition} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{(}\PYG{n}{fluid}\PYG{p}{)}
+\end{Verbatim}

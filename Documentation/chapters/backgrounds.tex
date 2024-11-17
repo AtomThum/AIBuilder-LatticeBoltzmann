@@ -23,12 +23,12 @@ The problem that we've selected to tackle is the second problem due to phase hom
 The variables that are used in this problem is as follows:
 \begin{enumerate}[noitemsep]
 	\item \textbf{The function needed for optimization}---the time until equilibrium
-	\item \textbf{Free boundary condition}---placement of the air conditioner, represented as a velocity boundary condition
+	\item \textbf{Free boundary condition}---placement of the air conditioner, represented as a density boundary condition
 	\item \textbf{Imposed boundary condition}---shape of the room
 \end{enumerate}
 It's then solved as follows:
 \begin{enumerate}[noitemsep]
-	\item Build a fluid simulator with wall and velocity boundary condition,
+	\item Build a fluid simulator with wall and density boundary condition,
 	\item Input the shape of the room, and the strength of the air conditioner,
 	\item Find the optimal air conditioner using gradient descent.
 \end{enumerate}
@@ -85,15 +85,15 @@ From the set of vectors $\vv{e}_0, \dots, \vv{e}_8$ inside each cell, one respec
 \end{equation}
 where the scalar $f_n$ represents the amount of fluid that's moving in the direction $\vv{e}_n$. From this representation alone, the density, momentum, and speed of the fluid at a certain point $(n, m)$ can be found. The density of fluid at the cell $(n, m)$, $\rho(n, m)$, is the sum from of all $f_i$'s inside the cell:
 \begin{equation}
-	\rho(n, m) \equiv \sum_if_i(n, m).
+	\rho(n, m) \equiv \sum_if_i(n, m). \label{eq:density-calculation}
 \end{equation}
 The momentum density, $\vv{U}(n, m)$, traditionally given by the product between velocity and mass, can be calculated as the sum of product between $f_n$ and their respective unit vectors:
 \begin{equation}
-	\vv{U}(n, m) \equiv \sum_nf_n\vv{e}_n.
+	\vv{U}(n, m) \equiv \sum_nf_n\vv{e}_n. \label{eq:momentum-calculation}
 \end{equation}
 The velocity density at a certain cell is just the ratio between the momentum density and the fluid density:
 \begin{equation}
-	\vv{u}(n, m) \equiv \frac{\vv{U}(n, m)}{\rho(n, m)} = \frac{\sum_nf_n\vv{e}_n}{\rho}.
+	\vv{u}(n, m) \equiv \frac{\vv{U}(n, m)}{\rho(n, m)} = \frac{\sum_nf_n\vv{e}_n}{\rho}. \label{eq:velocity-calculation}
 \end{equation}
 
 \subsection{Self-collision step}
@@ -102,7 +102,7 @@ The self-collision step represents the relaxation of fluid that happens inside a
 \begin{equation}
 	\vv{E}_i(n, m) = w_i\rho\ab(1 + 3\vv{e}_i \cdot \vv{u}(n, m) + \frac{9}{2}\ab(\vv{e}_i \cdot \vv{u}(n, m))^2 - \frac{3}{2}|\vv{u}(n, m)|^2)\vv{e}_i
 \end{equation}
-where $w_i$ is a weighting factor:
+where $w_i$ is a weighting factor that's given by the reduction of Boltzmann's distribution:
 \begin{gather}
 	w_i = \begin{cases}
 		\frac{4}{9}  & \textrm{if} ~ i = 0,          \\
@@ -151,7 +151,7 @@ Basically, this equation moves the fluid from one cell to the other as illustrat
 
 \subsection{Boundary conditions}
 
-There are two boundaries condition that needs to be implemented in this problem: wall and velocity. Since we want this to be a complete framework for two-dimensional fluid simulation, we also implemented the density boundary condition for completeness' sake.
+There are two boundaries condition that needs to be implemented in this problem: wall and density. Since we want this to be a complete framework for two-dimensional fluid simulation, we also implemented the density boundary condition for completeness' sake.
 
 \paragraph{Directional density boundary condition} This boundary condition can be achieved by explicitly setting the value of $f_0$ to $f_8$ after a complete simulation step.
 
@@ -226,8 +226,8 @@ Given that
 \end{equation}
 is fixed by the boundary condition, the surrounding velocities in the cell $\ab(n + (\vv{e}_a\vdot\yhat), m + (\vv{e}_b\vdot\xhat))$ can be updated as follows: \cite{zou-1997}
 \begin{gather}
-	\vv{f}_a = \vv{f}_{\alpha} + \frac{2}{3}\rho\ab(n + (\vv{e}_a\vdot\yhat), m + (\vv{e}_b\vdot\xhat))\vv{f}_a, \\
-	\vv{f}_A = \vv{f}_{C} - \frac{1}{2}\ab(\vv{f}_b - \vv{f}_{\beta}) + \rho\ab(n + (\vv{e}_a\vdot\yhat), m + (\vv{e}_b\vdot\xhat))\ab(\frac{\vv{u}_b}{6} + \frac{\vv{u}_a}{6}), \\
-	\vv{f}_D = \vv{f}_{B} - \frac{1}{2}\ab(\vv{f}_b - \vv{f}_{\beta}) + \rho\ab(n + (\vv{e}_a\vdot\yhat), m + (\vv{e}_b\vdot\xhat))\ab(- \frac{\vv{u}_b}{6} + \frac{\vv{u}_a}{6}).
+	\vv{f}_a = \vv{f}_{\alpha} + \frac{2}{3}\rho\ab(n + (\vv{e}_a\vdot\yhat), m + (\vv{e}_b\vdot\xhat))\vv{f}_a, \label{eq:velocity-boundary-1} \\
+	\vv{f}_A = \vv{f}_{C} - \frac{1}{2}\ab(\vv{f}_b - \vv{f}_{\beta}) + \rho\ab(n + (\vv{e}_a\vdot\yhat), m + (\vv{e}_b\vdot\xhat))\ab(\frac{\vv{u}_b}{6} + \frac{\vv{u}_a}{6}), \label{eq:velocity-boundary-2}\\
+	\vv{f}_D = \vv{f}_{B} - \frac{1}{2}\ab(\vv{f}_b - \vv{f}_{\beta}) + \rho\ab(n + (\vv{e}_a\vdot\yhat), m + (\vv{e}_b\vdot\xhat))\ab(- \frac{\vv{u}_b}{6} + \frac{\vv{u}_a}{6}). \label{eq:velocity-boundary-3}
 \end{gather}
 For the rest of the directions, use the wall boundary condition (bounce-back) to calculate the fluids vector.

@@ -6,7 +6,7 @@
 %%% Font setup
 \usepackage[no-math]{fontspec}
 \setmainfont{Zilla Slab}
-\setmonofont[Scale = MatchLowercase]{Iosevka Custom}
+\setmonofont[Scale = MatchLowercase]{Iosevka Custom Medium Condensed}
 \XeTeXlinebreaklocale="en_EN"
 \XeTeXlinebreakskip=0pt plus 3pt
 \emergencystretch=1em
@@ -74,12 +74,13 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{subcaption, graphicx, pdfpages, float, wrapfig}
 \usepackage{minted}
-\usemintedstyle{algol_nu}
+\usemintedstyle{base16-unikitty-light}
 \setminted{
     frame = lines,
-    bgcolor = lightgray,
+    bgcolor = lightgray!20,
     linenos,
-	breaklines
+	breaklines,
+	fontsize = \small
 }
 \usepackage{csquotes}
 \graphicspath{{figures/}}
@@ -221,11 +222,11 @@
 \title{
 	\vspace{-5em}
 	\textbf{
-		AI Builders: 2D Fluid simulation via the Lattice-Boltzmann method with conditional optimizers
+		AI Builders: 2D Fluid simulation framework via the Lattice-Boltzmann method with conditional optimizers
 	}
 }
 \author{Puripat Thumbanthu, Kunakorn Chaiyara}
-\date{Started: 11/15/2024, Revision: \today}
+\date{Started: November 11, 2024; Revision: \today}
 \maketitle
 
 \tableofcontents*

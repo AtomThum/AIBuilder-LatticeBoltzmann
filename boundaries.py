@@ -250,7 +250,7 @@ class PressureBoundary:
 
 
 class VelocityBoundary:
-    def __init__(self, y: int, x: int, magnitude, direction):
+    def __init__(self, y: int, x: int, magnitude: float, direction):
         self.y = y
         self.x = x
         self.magnitude = magnitude  # Follows the e conventions

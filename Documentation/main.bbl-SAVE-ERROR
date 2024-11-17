@@ -49,6 +49,41 @@
       \verb https://vanhunteradams.com/DE1/Lattice_Boltzmann/Lattice_Boltzmann.html
       \endverb
     \endentry
+    \entry{zhao-2013}{article}{}
+      \name{author}{1}{}{%
+        {{hash=c7d42e3dd6efc36afa732fb393090adf}{%
+           family={Zhao},
+           familyi={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{c7d42e3dd6efc36afa732fb393090adf}
+      \strng{fullhash}{c7d42e3dd6efc36afa732fb393090adf}
+      \strng{bibnamehash}{c7d42e3dd6efc36afa732fb393090adf}
+      \strng{authorbibnamehash}{c7d42e3dd6efc36afa732fb393090adf}
+      \strng{authornamehash}{c7d42e3dd6efc36afa732fb393090adf}
+      \strng{authorfullhash}{c7d42e3dd6efc36afa732fb393090adf}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Computers \& Mathematics with Applications}
+      \field{month}{1}
+      \field{number}{2}
+      \field{title}{Optimal relaxation collisions for lattice Boltzmann methods}
+      \field{volume}{65}
+      \field{year}{2013}
+      \field{dateera}{ce}
+      \field{pages}{172\bibrangedash 185}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1016/j.camwa.2011.06.005
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0898122111004731#:~:text=The\%20optimal\%20relaxation\%20time\%20of,simulations\%20with\%20lattice\%20Boltzmann\%20methods.
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0898122111004731#:~:text=The%5C%20optimal%5C%20relaxation%5C%20time%5C%20of,simulations%5C%20with%5C%20lattice%5C%20Boltzmann%5C%20methods.
+      \endverb
+    \endentry
     \entry{zou-1997}{article}{}
       \name{author}{2}{}{%
         {{hash=3a7ac91b1c99c48d20e6e9e9ef621631}{%

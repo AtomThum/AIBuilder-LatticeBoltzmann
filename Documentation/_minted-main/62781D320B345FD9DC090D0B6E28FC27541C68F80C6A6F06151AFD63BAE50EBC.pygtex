@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{velocityBoundaries} \PYG{o}{=} \PYG{p}{[]}
+\PYG{k}{def} \PYG{n+nf}{imposeDensityBoundaryCondition}\PYG{p}{(}\PYG{n}{boundary}\PYG{p}{,} \PYG{n}{velocityBoundaries}\PYG{p}{):}
+    \PYG{k}{for} \PYG{n}{velocityBoundary} \PYG{o+ow}{in} \PYG{n}{velocityBoundaries}\PYG{p}{:}
+        \PYG{n}{fluid}\PYG{p}{[}
+            \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{direction}
+        \PYG{p}{]} \PYG{o}{=} \PYG{n}{velocityBoundary}\PYG{o}{.}\PYG{n}{magnitude}
+    \PYG{n}{updateSpeed}\PYG{p}{()}
+\end{Verbatim}
