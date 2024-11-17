@@ -126,6 +126,14 @@ def filledStraightRectangularWall(
         ):
             boundary[yIndex, xIndex] = True
 \end{minted}
+
+Another type of walls that is quite handy to have while testing is the dot wall (\texttt{dotWalls}), which is possibly the simplest function of this project. Simply put, it takes in coordinates then modifies those coordinates in the \texttt{boundary} array to be a wall.
+\begin{minted}{python}
+def dotWalls(self, *args: tuple):
+    for position in args:
+        self.boundary[position[0], position[1]] = not self.invert
+\end{minted}
+
 These functions directly modifies the \texttt{boundary} array. They must be called before imposing the wall boundaries to the \texttt{fluid} array.
 
 In some cases, it's more desirable to use the indices of the boundaries instead. We also write another function that's used to generate the indices of the boundaries. This function takes in the boundary array (\texttt{boundary}), and outputs two arrays: \texttt{boundaryIndex}, which is a list containing the indices of walls, and \texttt{invertedBoundaryIndex}, which is a list that contains the indices of fluids (invert of walls).
@@ -381,10 +389,11 @@ def bounceBackFluid(fluid):
     updateSpeed()
 \end{minted}
 
-\section{Main loop}
+\section{Simulation loop}
 
 We first define a counter that counts the amount of times that we ran the simulation: \texttt{step}. For further comparison, we deep-copy the state of the fluid before updating to the variable \texttt{lastStepFluid}. Then, the fluid vector is updated in order: stream, bounce back, self-collide, impose velocity, and impose density.
 \begin{minted}{python}
+step = 1
 def stepSimulation(fluid):
     lastStepFluid = copy.deepcopy(fluid)
     streamFluid()
@@ -394,3 +403,66 @@ def stepSimulation(fluid):
     imposePressureBoundaryCondition()
     step += 1
 \end{minted}
+
+Then, another function is implemented as a way to loop over the step function:
+\begin{minted}{python}
+def simulate(fluid, step: int = 1):
+    [stepSimulation(fluid) for i in range(step)]
+\end{minted}
+
+\section{Metrics and baseline function}
+
+A more explicit form of the problem is
+\begin{quote}
+	\emph{Find the air conditioner position that makes the system reaches the equilibrium the fastest.}
+\end{quote}
+So, it's necessary to have a function that will simulate the fluid until equilibrium. Here, the word \emph{equilibrium} is defined as the point in which the difference in the sum of fluid vector between the last simulation step (\texttt{lastStepFluid}), and the current step (\texttt{fluid}), is smaller than a set threshold (\texttt{equilibriumThreshold}), which is normally set to be $0.5$. The function that determines whether the system has reached equilibrium or not is called \texttt{isEquilibrium}. This function takes in a fluid state and its past state, then outputs a boolean. If it's true, then the system has reached equilibrium, otherwise, it hasn't.
+\begin{minted}{python}
+def isAtDensityEquilibirum(fluid, lastStepFluid, threshold: float = 0.5):
+    error = np.sum(np.abs(self.lastStepFluid - self.fluid))
+    if error >= threshold:
+        return False
+    else:
+        return True
+\end{minted}
+
+The function to simulate until equilibrium also needs some care. Firstly, some initial condition where the simulation is numerically unstable, so the simulation has to be terminated before it uses up all the memory. This can be done by terminating the simulation when the sum of the fluid vectors reaches a certain threshold: the \texttt{explodeThreshold}. Secondly, some initial condition isn't numerically unstable, but doesn't reach an equilibrium either, so the amount of simulation passes limit (\texttt{limit}) must be set to control how many steps the simulation can take before forcing it to terminate. Altogether, the \texttt{simulateUntilEquilibrium} function is implemented as follows:
+\begin{minted}{python}
+def simulateUntilEquilibrium(
+    fluid,
+    limit: int = 5000,
+    equilibriumThreshold: float = 0.5,
+    explodeThreshold: float = 11 * xResolution * yResolution,
+):
+    step = 0
+    isStable = True
+    for _ in range(limit):
+        stepSimulation()
+        step += 1
+        if np.sum(self.fluid) > explodeThreshold:
+            isStable = False
+            break
+        if isAtDensityEquilibirum(equilibriumThreshold):
+            break
+    
+    return step, isStable
+\end{minted}
+
+\section{Plotting the results}
+
+Plotting various aspects of the fluid simulation is quite straightforward with the framework that we've built. The density plot can be achieved directly by using the \texttt{imshow} function. \cite{matplotlib-imshow}
+\begin{minted}{python}
+plt.imshow(density, cmap="hot", interpolation="hermite")
+\end{minted}
+where \texttt{cmap} is the color map, and \texttt{interpolation} is the color map smoothing algorithm. The full list of options for both of these can be found in Matplotlib's documentation: \cite{matplotlib-cmap} (\texttt{cmap}), and \cite{matplotlib-interpolation} (\texttt{interpolation}).
+
+The momentum density and the velocity density can be directly plotted along with the \texttt{quiver} function from Matplotlib. \cite{matplotlib-quiver}
+\begin{minted}{python}
+fig, ax = plt.subplots()
+heatmap = ax.imshow(densityPlot, cmap = "hot", interpolation = "hermite")
+quivermap = ax.quiver(xIndex, yIndex, momentumX, -momentumY)
+# Change momentumX, -momentumY to speedX, and speedY to plot the velocity instead of momentum.
+fig.colorbar(heatmap)
+plt.show()
+\end{minted}
+The \texttt{momentumY} has to have a negative sign upfront because \texttt{matplotlib} libraries doesn't invert the $y$ and $x$ axes like the \texttt{NumPy} convention. Further modifications of the plot can be found in Matplotlib's quiver documentation: \cite{matplotlib-quiver}.

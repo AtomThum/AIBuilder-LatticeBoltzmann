@@ -1,22 +1,122 @@
 \chapter{Framework structure}
 \label{sec:model-structure}
 
-As said, we shall enforce the object-oriented paradigm of \texttt{Python} by turning everything into an object. Firstly, a class that initializes the simulation called \texttt{Simulation} that's initialized with the following variables
+As said, we shall enforce the object-oriented paradigm of \texttt{Python} by turning everything into an object one by one
+
+\section[Class: wall boundary condition]{Class \texttt{WallBoundary}}
+\label{sec:class-wall-boundary}
+
+The \texttt{WallBoundary} class is used to store the position of walls, and is initialized with the following variables
+\begin{itemize}[noitemsep]
+	\item \texttt{yResolution: int}
+	\item \texttt{xResolution: int}
+	\item \texttt{invert: bool = False}
+\end{itemize}
+Along with these constants that are baked into the class
+\begin{minted}{python}
+class WallBoundary:
+    unitVect = np.array(
+        [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    )
+    unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
+    unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
+    directions = [(1, -1), (1, 1), (1, 1), (-1, 1), (1, -1), (1, 1), (-1, 1), (-1, -1)]
+    unitVect = np.array(
+        [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+    )
+\end{minted}
+
+The \texttt{invert} variable is used in case the walls needed to be inverted. E.g., instead of generating a cylinder in the middle, we want the cylinder to enclose the fluid instead. If \texttt{invert} is true, then the wall boundaries is inverted.
+
+The object variables are then evaluated as follows:
+\begin{minted}{python}
+self.yResolution = yResolution
+self.xResolution = xResolution
+self.invert = invert
+self.boundary = np.full((yResolution, xResolution), invert)
+self.invertedBoundary = np.invert(self.boundary)
+self.boundaryIndex = []
+self.invertedBoundaryIndex = []
+
+self.possibleACPos = np.full((yResolution, xResolution), False)
+self.possibleACIndex = []
+self.possibleACDirections = None
+\end{minted}
+The class contains the following function.
+\begin{itemize}[noitemsep]
+	\item \texttt{generateIndex(self)}
+	\item \texttt{generateACPos(self)}
+	\item \texttt{indexPossibleACPos(self)}
+	\item \texttt{cylindricalWall(self, cylinderCenter: tuple, cylinderRadius: float)}
+	\item \texttt{filledStraightRectangularWall(self, cornerCoord1: tuple, cornerCorod2: tuple)}
+	\item \texttt{borderWall(self, thickness: int = 1)}
+	\item \texttt{dotWalls(self, *args: tuple)}
+\end{itemize}
+The top three functions are used by the simulation to generate various indices for placing the air conditioner. The lower five are used to modify the boundaries directly. All the coordinates that are used in these class functions are tuples in the form $(y, x)$. These functions must be called before initializing the simulation using the \texttt{Simulation} class, documented in \cref{sec:class-simulation}.
+
+\section[Class: density boundary condition]{Class \texttt{DensityBoundary}}
+
+This class is used to model density boundary condition and is implemented as follows:
+\begin{minted}{python}
+class VelocityBoundary:
+    def __init__(self, y: int, x: int, magnitude: float, direction: int):
+        self.y = y
+        self.x = x
+        self.magnitude = magnitude
+        self.direction = np.array(direction)
+\end{minted}
+This class does not have any methods or functions.
+
+If a simulation has multiple density boundary condition, they must be stored in a list and passed to the variable \texttt{densityBoundaries} of the \texttt{Simulation} class, documented in \cref{sec:class-simulation}.
+
+\section[Class: velocity boundary condition]{Class \texttt{VelocityBoundary}}
+
+This class is used to model velocity boundary condition and is implemented as follows:
+\begin{minted}{python}
+class VelocityBoundary:
+    indices = [[1, 8, 5], [2, 5, 6], [3, 6, 7], [4, 7, 8]]
+
+    def __init__(self, y: int, x: int, ux, uy, direction: int):
+        self.y = y
+        self.x = x
+        self.uy = uy
+        self.ux = ux
+        self.direction = direction
+        if direction in [3, 4]:
+            reflectIndex = direction - 2
+        else:
+            reflectIndex = direction + 2
+
+        self.mainVelocity = ux if direction in [1, 3] else uy
+        self.minorVelocity = uy if direction in [1, 3] else ux
+        self.setIndices = PressureBoundary.indices[direction - 1]
+        self.getIndices = PressureBoundary.indices[reflectIndex - 1]
+\end{minted}
+If a simulation has multiple velocity boundary condition, they must be stored in a list and passed to the variable \texttt{velocityBoundaries} of the \texttt{Simulation} class, documented in \cref{sec:class-simulation}.
+
+\section[Class: simulation]{Class \texttt{Simulation}}
+\label{sec:class-simulation}
+
+The class \texttt{Simulation} is used to initialize a simulation and store all the physical variables and boundaries condition of a simulation. It's initialized with the following variables:
 \begin{itemize}[noitemsep]
 	\item \texttt{yResolution: int}
 	\item \texttt{xResolution: int}
 	\item \texttt{initCondition: np.array}
-	\item \texttt{wallboundary: WallBoundary}
+	\item \texttt{wallBoundary: WallBoundary}
 	\item \texttt{densityBoundaries: list = []}
 	\item \texttt{velocityBoundaries: list = []}
 	\item \texttt{relaxationTime: float = 0.8090}
 	\item \texttt{initialStep: int = 0}
 \end{itemize}
-Some class variables is also baked into the class
+The following constants are baked into the class:
 \begin{minted}{python}
 class Simulation:
     unitVect = np.array(
-        [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+        [
+            [0, 0], [1, 0], [0, 1],
+            [-1, 0], [0, -1], [1, 1],
+            [-1, 1], [-1, -1], [1, -1]
+        ]
     )
     unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
     unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
@@ -51,7 +151,33 @@ self.speedX = self.momentumX / self.density
 self.speedY = np.nan_to_num(self.speedY, posinf=0, neginf=0, nan=0)
 self.speedX = np.nan_to_num(self.speedX, posinf=0, neginf=0, nan=0)
 \end{minted}
-In this class contains the following main functions that are used to simulate the fluid:
+
+The variable \texttt{initCondition} must be a \texttt{NumPy} array shaped \texttt{(yResolution, xResolution, 9)}. A wall boundary is required to initialize this class. If the simulation contains no walls, pass in an object of class \texttt{WallBoundary} (\cref{sec:class-wall-boundary}) without calling any functions on it. Optionally, one might pass in a list of velocity boundary conditions and pressure boundary condition. A common way to initialize this class is.
+\begin{minted}{python}
+yResolution = 24  # Can be modified
+xResolution = 36  # Can be modified
+initCondition = np.ones((yResolution, xResolution, Simulation.latticeSize)) / 9
+walls = WallBoundary(yResolution, xResolution)
+# Call the WallBoundary class methods here to generate the desired walls.
+walls.cylindricalWall((12, 10), 5) # Ex: Generate a cylinder at (12, 10) with radius 5
+walls.borderWall() # Ex: Generate a border for the simulation
+
+# Examples of density and velocity boundary conditions.
+densityInlet = [DensityBoundary(12, 2, 1, 1)]
+velocityInlet = [VelocityBoundary(12, 2, 1, 0, 1)]
+
+# Initializing the simulation
+simulation = Simulation(
+    yResolution,
+    xResolution,
+    initCondition,
+    walls,
+    densityBoundaries = densityInlet,
+    velocityBoundaries = velocityInlet
+)
+\end{minted}
+
+This class contains the following functions:
 \begin{itemize}[noitemsep]
 	\item \texttt{updateDensity(self)}
 	\item \texttt{updateMomentum(self)}
@@ -62,4 +188,7 @@ In this class contains the following main functions that are used to simulate th
 	\item \texttt{imposeVelocityBoundaryCondition(self)}
 	\item \texttt{imposePressureBoundaryCondition(self)}
 	\item \texttt{stepSimulation(self)}
+	\item \texttt{simulate(self, step: int = 1)}
+	\item \texttt{isAtDensityEquilibrium(self, threshold: float = 0.5)}
+	\item \texttt{simulateUntilEquilibrium(self, limit: int = 5000, equilibriumThreshold: float = 0.5, explodeThreshold: float = 400)}
 \end{itemize}
