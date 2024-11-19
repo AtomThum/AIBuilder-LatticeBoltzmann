@@ -1,3 +1,23 @@
 \chapter{Optimization algorithm}
 
-\section{Implementation}
+\section{Overview}
+
+Originally, we planned to use the stochastic gradient descent algorithm straight on the possible air conditioner position. However, it falls short because most of the best points are all scattered throughout the rooms. The time until equilibrium of most half-way point of a straight wall is mostly similar, and is the optimal position. Meaning that there are many hills and valleys in our loss function; thus, gradient descent is basically out of the window.\footnote{It took us about four weeks before realizing that both the original gradient descent and its best cousin, \texttt{AdamW} literally doesn't work because of the room's geometry with many sharp corners. They are all smooth in its own sense, but it changes rapidly when a corner is hit.}
+
+Recognizing that the visual geometry of the room is significant to optimizing the air conditioner placement, we settled for a convolutional neural network: a machine-learning method which can easily recognize the shape of a room. The overview of the plan is as follows:
+\begin{enumerate}[noitemsep]
+	\item Generate a data set that captures
+	      \begin{enumerate}[noitemsep]
+		      \item \textbf{Data}---The shape of the room in as \texttt{.png} files
+		      \item \textbf{Labels}---The best air conditioner position as a tuple $(Y, X)$
+	      \end{enumerate}
+	\item Import the data into a \texttt{tensorflow} compatible format, then do train-test split
+	\item Design the convolutional neural networks layer
+	\item Train the model using a Pythagorean distance loss function
+\end{enumerate}
+
+\section{Data generation algorithm}
+
+\section{Convolutional neural networks}
+
+\section{Discussion on the pitfalls of pure gradient descent}

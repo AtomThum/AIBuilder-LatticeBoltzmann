@@ -16,14 +16,18 @@ Along with these constants that are baked into the class
 \begin{minted}{python}
 class WallBoundary:
     unitVect = np.array(
-        [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
+        [
+            [0, 0], [1, 0], [0, 1],
+            [-1, 0], [0, -1], [1, 1],
+            [-1, 1], [-1, -1], [1, -1]
+        ]
     )
     unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
     unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
-    directions = [(1, -1), (1, 1), (1, 1), (-1, 1), (1, -1), (1, 1), (-1, 1), (-1, -1)]
-    unitVect = np.array(
-        [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
-    )
+    directions = [
+        (1, -1), (1, 1), (1, 1), (-1, 1), 
+        (1, -1), (1, 1), (-1, 1), (-1, -1)
+    ]
 \end{minted}
 
 The \texttt{invert} variable is used in case the walls needed to be inverted. E.g., instead of generating a cylinder in the middle, we want the cylinder to enclose the fluid instead. If \texttt{invert} is true, then the wall boundaries is inverted.
@@ -59,7 +63,9 @@ The top three functions are used by the simulation to generate various indices f
 This class is used to model density boundary condition and is implemented as follows:
 \begin{minted}{python}
 class VelocityBoundary:
-    def __init__(self, y: int, x: int, magnitude: float, direction: int):
+    def __init__(
+        self, y: int, x: int, magnitude: float, direction: int
+    ):
         self.y = y
         self.x = x
         self.magnitude = magnitude
@@ -121,10 +127,15 @@ class Simulation:
     unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
     unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
     weight = np.array(
-        [4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36]
+        [
+            4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9,
+            1 / 36, 1 / 36, 1 / 36, 1 / 36
+        ]
     )
     latticeSize = 9
-    reflectIndices = {0: 0, 1: 3, 2: 4, 3: 1, 4: 2, 5: 7, 6: 8, 7: 5, 8: 6}
+    reflectIndices = {
+        0: 0, 1: 3, 2: 4, 3: 1, 4: 2, 5: 7, 6: 8, 7: 5, 8: 6
+    }
 \end{minted}
 Then, the following class variables are calculated:
 \begin{minted}{python}
