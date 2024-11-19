@@ -197,7 +197,7 @@ Then, the generator iterate through all positions and viable (facing into open a
 
 \section{Convolutional neural network}
 
-We used \texttt{Tensorflow}'s Convolutional Neural Network framework to train our model. The images of the room were scaled down from their original $480\times 480$ size to a more manageable $32\times 32$ size. Its grayscale values were also inverted for more efficiency. We had generated $1438$ possible room layouts and air conditioner positions, and used it to train and test our model with a train to test ratio of $7:3$. Our model has ten layers, consisting of \texttt{Conv2D}, \texttt{MaxPooling2D}, and Dense layers arranged as follows:
+We used \texttt{Tensorflow}'s Convolutional Neural Network framework to train our model \cite{tensorflow-cnn}. The images of the room were scaled down from their original $480\times 480$ size to a more manageable $32\times 32$ size. Its grayscale values were also inverted for more efficiency. We had generated $1438$ possible room layouts and air conditioner positions, and used it to train and test our model with a train to test ratio of $7:3$. Our model has ten layers, consisting of \texttt{Conv2D}, \texttt{MaxPooling2D}, and Dense layers arranged as follows:
 \begin{enumerate}
     \item \texttt{Conv2D(32, (4, 4), activation="relu", input\_shape=(32, 32, 1))}
     \item \texttt{MaxPooling2D((2, 2))}
