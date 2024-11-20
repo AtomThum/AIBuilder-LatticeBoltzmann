@@ -21,13 +21,10 @@ def angleToPosition(magnitude: float, angle: float):
 
 
 class WallBoundary:
-    unitVect = np.array(
-        [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
-    )
     unitX = np.array([0, 1, 0, -1, 0, 1, -1, -1, 1])
     unitY = np.array([0, 0, 1, 0, -1, 1, 1, -1, -1])
     mineSweeper = [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
-    directions = [(1, -1), (1, 1), (1, 1), (-1, 1), (1, -1), (1, 1), (-1, 1), (-1, -1)]
+    directions = [(1, -1), (1, -1), (1, 1) , (1, 1), (1, 1) , (1, 1), (-1, 1), (-1, 1), (1, -1), (1, 1), (-1, 1), (-1, -1)]
     unitVect = np.array(
         [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
     )
@@ -52,10 +49,14 @@ class WallBoundary:
         self.cutSizesY = []
 
         self.possiblePositions = [
-            (int(self.yResolution / 2), self.xResolution - 1),
-            (0, int(self.xResolution / 2)),
-            (int(self.yResolution / 2), 0),
-            (self.yResolution - 1, int(self.xResolution / 2)),
+            (int(self.yResolution / 3), self.xResolution - 1),
+            (int(2 * self.yResolution / 3), self.xResolution - 1),
+            (0, int(self.xResolution / 3)),
+            (0, int(2 * self.xResolution / 3)),
+            (int(self.yResolution / 3), 0),
+            (int(2 * self.yResolution / 3), 0),
+            (self.yResolution - 1, int(self.xResolution / 3)),
+            (self.yResolution - 1, int(2 * self.xResolution / 3)),
             (0, self.xResolution - 1),
             (0, 0),
             (self.yResolution - 1, 0),
@@ -76,11 +77,15 @@ class WallBoundary:
         self.updateInvertedBoundary()
 
     def generateRoom(self):
-        for i in random.sample(range(8), k=random.randint(1, 8)):
+        for i in random.sample(range(12), k=random.randint(1, 12)):
             wallPos = self.possiblePositions[i]
-            if random.random() < 0.5:
-                maxSize = int(min(self.yResolution, self.xResolution) * 0.2)
-                minSize = int(min(self.yResolution, self.xResolution) * 0.1)
+            if random.random() < 0.4:
+                if random.random() < 0.1:
+                    maxSize = int(min(self.yResolution, self.xResolution) * 0.7)
+                    minSize = int(min(self.yResolution, self.xResolution) * 0.5)
+                else:
+                    maxSize = int(min(self.yResolution, self.xResolution) * 0.3)
+                    minSize = int(min(self.yResolution, self.xResolution) * 0.2)
                 sizeR = random.randint(minSize, maxSize)
                 self.cylindricalWall(wallPos, sizeR)
                 self.cutTypes.append(0)
@@ -90,8 +95,13 @@ class WallBoundary:
                 self.cutSizesY.append(sizeR)
 
             else:
-                maxSize = int(min(self.yResolution, self.xResolution) * 0.3)
-                minSize = int(min(self.yResolution, self.xResolution) * 0.1)
+                if random.random() < 0.2:
+                    maxSize = int(min(self.yResolution, self.xResolution) * 0.6)
+                    minSize = int(min(self.yResolution, self.xResolution) * 0.3)
+                else:
+                    maxSize = int(min(self.yResolution, self.xResolution) * 0.4)
+                    minSize = int(min(self.yResolution, self.xResolution) * 0.2)
+                
                 sizeX = random.randint(minSize, maxSize)
                 sizeY = random.randint(minSize, maxSize)
                 rectPos = (
@@ -183,6 +193,14 @@ class WallBoundary:
                     break
                 else:
                     pass
+    
+    def indexWithoutCare(self):
+        testArray = copy.deepcopy(self.possibleACPos)
+        self.possibleACIndex = []
+        for i in range(self.xResolution):
+            for j in range(self.yResolution):
+                if (testArray[(j, i)]):
+                    self.possibleACIndex.append((j,i))
 
     def cylindricalWall(self, cylinderCenter: list, cylinderRadius: float):
         for yIndex, xIndex in itr.product(

@@ -242,12 +242,14 @@ class Simulation:
         equilibriumThreshold: float = 0.5,
         explodeThreshold: float = 400,
     ):
+        explodeThreshold = 11 * self.xResolution * self.yResolution
         step = 0
         isStable = True
+        
         for _ in range(limit):
             self.stepSimulation()
             step += 1
-            if np.average(self.fluid) > explodeThreshold:
+            if np.sum(self.fluid) > explodeThreshold:
                 isStable = False
                 break
             if self.isAtDensityEquilibirum(equilibriumThreshold):
